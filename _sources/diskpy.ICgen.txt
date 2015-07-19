@@ -1,0 +1,190 @@
+diskpy.ICgen package
+====================
+
+Submodules
+----------
+
+diskpy.ICgen.AddBinary module
+-----------------------------
+
+.. automodule:: diskpy.ICgen.AddBinary
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+diskpy.ICgen.ICgen module
+-------------------------
+
+.. automodule:: diskpy.ICgen.ICgen
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+diskpy.ICgen.ICgen_settings module
+----------------------------------
+
+.. automodule:: diskpy.ICgen.ICgen_settings
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+diskpy.ICgen.ICgen_utils module
+-------------------------------
+
+.. automodule:: diskpy.ICgen.ICgen_utils
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+diskpy.ICgen.ICglobal_settings module
+-------------------------------------
+
+.. automodule:: diskpy.ICgen.ICglobal_settings
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+diskpy.ICgen.binary module
+--------------------------
+
+.. automodule:: diskpy.ICgen.binary
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+diskpy.ICgen.binaryUtils module
+-------------------------------
+
+.. automodule:: diskpy.ICgen.binaryUtils
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+diskpy.ICgen.calc_rho module
+----------------------------
+
+.. automodule:: diskpy.ICgen.calc_rho
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+diskpy.ICgen.calc_rho_zr module
+-------------------------------
+
+.. automodule:: diskpy.ICgen.calc_rho_zr
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+diskpy.ICgen.calc_temp module
+-----------------------------
+
+.. automodule:: diskpy.ICgen.calc_temp
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+diskpy.ICgen.calc_velocity module
+---------------------------------
+
+.. automodule:: diskpy.ICgen.calc_velocity
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+diskpy.ICgen.calc_velocity_mpi module
+-------------------------------------
+
+.. automodule:: diskpy.ICgen.calc_velocity_mpi
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+diskpy.ICgen.clear_star module
+------------------------------
+
+.. automodule:: diskpy.ICgen.clear_star
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+diskpy.ICgen.isaac module
+-------------------------
+
+.. automodule:: diskpy.ICgen.isaac
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+diskpy.ICgen.kepler38 module
+----------------------------
+
+.. automodule:: diskpy.ICgen.kepler38
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+diskpy.ICgen.load_hermite_spline module
+---------------------------------------
+
+.. automodule:: diskpy.ICgen.load_hermite_spline
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+diskpy.ICgen.make_sigma module
+------------------------------
+
+.. automodule:: diskpy.ICgen.make_sigma
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+diskpy.ICgen.make_snapshot module
+---------------------------------
+
+.. automodule:: diskpy.ICgen.make_snapshot
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+diskpy.ICgen.make_snapshotBinary module
+---------------------------------------
+
+.. automodule:: diskpy.ICgen.make_snapshotBinary
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+diskpy.ICgen.make_snapshotSType module
+--------------------------------------
+
+.. automodule:: diskpy.ICgen.make_snapshotSType
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+diskpy.ICgen.pos_class module
+-----------------------------
+
+.. automodule:: diskpy.ICgen.pos_class
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+diskpy.ICgen.sigma_profile module
+---------------------------------
+
+.. automodule:: diskpy.ICgen.sigma_profile
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: diskpy.ICgen
+    :members:
+    :undoc-members:
+    :show-inheritance:
