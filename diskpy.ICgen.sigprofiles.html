@@ -37,6 +37,9 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
           <a href="diskpy.clumps.html" title="diskpy.clumps package"
              accesskey="N">next</a> |</li>
         <li class="right" >
@@ -58,11 +61,37 @@
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="diskpy-icgen-sigprofiles-powerlaw-module">
-<h2>diskpy.ICgen.sigprofiles.powerlaw module<a class="headerlink" href="#diskpy-icgen-sigprofiles-powerlaw-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-diskpy.ICgen.sigprofiles.powerlaw">
+<span id="diskpy-icgen-sigprofiles-powerlaw-module"></span><h2>diskpy.ICgen.sigprofiles.powerlaw module<a class="headerlink" href="#module-diskpy.ICgen.sigprofiles.powerlaw" title="Permalink to this headline">¶</a></h2>
+<p>Created on Tue Jul 21 16:23:50 2015</p>
+<p>&#64;author: ibackus</p>
+<dl class="function">
+<dt id="diskpy.ICgen.sigprofiles.powerlaw.powerlaw">
+<code class="descclassname">diskpy.ICgen.sigprofiles.powerlaw.</code><code class="descname">powerlaw</code><span class="sig-paren">(</span><em>settings</em>, <em>T=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/diskpy/ICgen/sigprofiles/powerlaw.html#powerlaw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#diskpy.ICgen.sigprofiles.powerlaw.powerlaw" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a surface density profile according to a powerlaw sigma ~ 1/r
+with a smooth interior cutoff and smooth exterior exponential cutoff.</p>
+<p><strong>ARGUMENTS</strong></p>
+<dl class="docutils">
+<dt>settings <span class="classifier-delimiter">:</span> <span class="classifier">IC settings</span></dt>
+<dd>settings like those contained in an IC object (see ICgen_settings.py)</dd>
+<dt>T <span class="classifier-delimiter">:</span> <span class="classifier">callable function</span></dt>
+<dd>Function that returns temperature of the disk as a function of radius
+IF none, a powerlaw temperature is assumed</dd>
+</dl>
+<p><strong>RETURNS</strong></p>
+<dl class="docutils">
+<dt>R <span class="classifier-delimiter">:</span> <span class="classifier">SimArray</span></dt>
+<dd>Radii at which sigma is calculated</dd>
+<dt>sigma <span class="classifier-delimiter">:</span> <span class="classifier">SimArray</span></dt>
+<dd>Surface density profile as a function of R</dd>
+</dl>
+</dd></dl>
+
 </div>
-<div class="section" id="module-contents">
-<h2>Module contents<a class="headerlink" href="#module-contents" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-diskpy.ICgen.sigprofiles">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-diskpy.ICgen.sigprofiles" title="Permalink to this headline">¶</a></h2>
+<p>Created on Tue Jul 21 16:23:03 2015</p>
+<p>&#64;author: ibackus</p>
 </div>
 </div>
 
@@ -76,8 +105,8 @@
   <ul>
 <li><a class="reference internal" href="#">diskpy.ICgen.sigprofiles package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#diskpy-icgen-sigprofiles-powerlaw-module">diskpy.ICgen.sigprofiles.powerlaw module</a></li>
-<li><a class="reference internal" href="#module-contents">Module contents</a></li>
+<li><a class="reference internal" href="#module-diskpy.ICgen.sigprofiles.powerlaw">diskpy.ICgen.sigprofiles.powerlaw module</a></li>
+<li><a class="reference internal" href="#module-diskpy.ICgen.sigprofiles">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -118,6 +147,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="right" >
           <a href="diskpy.clumps.html" title="diskpy.clumps package"
              >next</a> |</li>

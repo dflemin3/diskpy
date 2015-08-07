@@ -37,6 +37,9 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
           <a href="diskpy.pdmath.html" title="diskpy.pdmath package"
              accesskey="N">next</a> |</li>
         <li class="right" >
@@ -54,8 +57,294 @@
             
   <div class="section" id="diskpy-disk-package">
 <h1>diskpy.disk package<a class="headerlink" href="#diskpy-disk-package" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="module-contents">
-<h2>Module contents<a class="headerlink" href="#module-contents" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-diskpy.disk">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-diskpy.disk" title="Permalink to this headline">¶</a></h2>
+<p>Created on Thu Jul 16 15:42:44 2015</p>
+<p>&#64;author: ibackus</p>
+<dl class="function">
+<dt id="diskpy.disk.centerdisk">
+<code class="descclassname">diskpy.disk.</code><code class="descname">centerdisk</code><span class="sig-paren">(</span><em>snapshot</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/diskpy/disk/_utils.html#centerdisk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#diskpy.disk.centerdisk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Centers a disk on the center of mass puts it into rest frame</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="diskpy.disk.snapshot_defaults">
+<code class="descclassname">diskpy.disk.</code><code class="descname">snapshot_defaults</code><span class="sig-paren">(</span><em>snapshot</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/diskpy/disk/_utils.html#snapshot_defaults"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#diskpy.disk.snapshot_defaults" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies various defaults to tipsy snapshots of protoplanetary disk 
+simulations. These include:</p>
+<blockquote>
+<div><div class="line-block">
+<div class="line">-Sets nice units        </div>
+<div class="line">-Calculates particle smoothing lengths using mass and rho </div>
+<div class="line-block">
+<div class="line">(if available)        </div>
+</div>
+<div class="line">-Centers on snapshot center-of-mass</div>
+<div class="line">-Puts in rest frame</div>
+</div>
+</div></blockquote>
+<p>Changes the snapshot in place</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="diskpy.disk.Q">
+<code class="descclassname">diskpy.disk.</code><code class="descname">Q</code><span class="sig-paren">(</span><em>snapshot</em>, <em>molecular_mass=2.0</em>, <em>bins=100</em>, <em>use_velocity=False</em>, <em>use_omega=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/diskpy/disk/_profiles.html#Q"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#diskpy.disk.Q" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the Toomre Q as a function of r, assuming radial temperature
+profile and kappa ~= omega</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>snapshot</strong> : tipsy snapshot</p>
+<p><strong>molecular_mass</strong> : float</p>
+<blockquote>
+<div><p>Mean molecular mass (for sound speed).  Default = 2.0</p>
+</div></blockquote>
+<p><strong>bins</strong> : int or array</p>
+<blockquote>
+<div><p>Either the number of bins or the bin edges</p>
+</div></blockquote>
+<p><strong>use_velocity</strong> : Bool</p>
+<blockquote>
+<div><p>Determines whether to use the particles&#8217; velocities to calculate orbital
+velocity.  Useful if the circular orbital velocities are set in the
+snapshot.</p>
+</div></blockquote>
+<p><strong>use_omega</strong> : Bool</p>
+<blockquote>
+<div><p>Default=True.  Use omega as a proxy for kappa to reduce noise</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>Q</strong> : array</p>
+<blockquote>
+<div><p>Toomre Q as a function of r</p>
+</div></blockquote>
+<p><strong>r_edges</strong> : array</p>
+<blockquote class="last">
+<div><p>Radial bin edges</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="diskpy.disk.Qeff">
+<code class="descclassname">diskpy.disk.</code><code class="descname">Qeff</code><span class="sig-paren">(</span><em>snapshot</em>, <em>molecular_mass=2.0</em>, <em>bins=100</em>, <em>use_velocity=False</em>, <em>use_omega=True</em>, <em>alpha=0.18</em>, <em>beta=2.2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/diskpy/disk/_profiles.html#Qeff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#diskpy.disk.Qeff" title="Permalink to this definition">¶</a></dt>
+<dd><p>Estimates the effective Toomre Q as a function of r, defined as:</p>
+<div class="math">
+\[Q_{eff} = \beta Q (h/R)^{\alpha}\]</div>
+<p>See Q and h for the estimates of Q and h</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>snapshot</strong> : tipsy snapshot</p>
+<p><strong>molecular_mass</strong> : float</p>
+<blockquote>
+<div><p>Mean molecular mass (for sound speed).  Default = 2.0</p>
+</div></blockquote>
+<p><strong>bins</strong> : int or array</p>
+<blockquote>
+<div><p>Either the number of bins or the bin edges</p>
+</div></blockquote>
+<p><strong>use_velocity</strong> : Bool</p>
+<blockquote>
+<div><p>Determines whether to use the particles&#8217; velocities to calculate orbital
+velocity.  Useful if the circular orbital velocities are set in the
+snapshot.</p>
+</div></blockquote>
+<p><strong>use_omega</strong> : Bool</p>
+<blockquote>
+<div><p>Default=True.  Use omega as a proxy for kappa to reduce noise</p>
+</div></blockquote>
+<p><strong>alpha</strong> : float</p>
+<blockquote>
+<div><p>Powerlaw for height dependence</p>
+</div></blockquote>
+<p><strong>beta</strong> : float</p>
+<blockquote>
+<div><p>Normalization such that disks fragment for Qeff = 1</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>Qeff</strong> : array</p>
+<blockquote>
+<div><p>Effective Toomre Q as a function of r</p>
+</div></blockquote>
+<p><strong>r_edges</strong> : array</p>
+<blockquote class="last">
+<div><p>Radial bin edges</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="diskpy.disk.kappa">
+<code class="descclassname">diskpy.disk.</code><code class="descname">kappa</code><span class="sig-paren">(</span><em>f</em>, <em>bins=100</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/diskpy/disk/_profiles.html#kappa"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#diskpy.disk.kappa" title="Permalink to this definition">¶</a></dt>
+<dd><p>Estimate the epicyclic frequency from velocity</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>f</strong> : TipsySnap</p>
+<blockquote>
+<div><p><cite>f</cite> is a Simulation snapshot</p>
+</div></blockquote>
+<p><strong>bins</strong> : int or array-like</p>
+<blockquote>
+<div><p>Either the number of bins to use or the bin edges</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>kappa</strong> : SimArray</p>
+<blockquote>
+<div><p>epicyclic frequency</p>
+</div></blockquote>
+<p><strong>r_edges</strong> : SimArray</p>
+<blockquote class="last">
+<div><p>binedges used</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="diskpy.disk.height">
+<code class="descclassname">diskpy.disk.</code><code class="descname">height</code><span class="sig-paren">(</span><em>snapshot</em>, <em>bins=100</em>, <em>center_on_star=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/diskpy/disk/_profiles.html#height"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#diskpy.disk.height" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the characteristic height (h) of a flared disk as a function
+of cylindrical radius (r).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>snapshot</strong> : TipsySnap</p>
+<blockquote>
+<div><p>Simulation snapshot for a flared disk</p>
+</div></blockquote>
+<p><strong>bins</strong> : int or array_like</p>
+<blockquote>
+<div><p>Specifies the bins to use.  If int, specifies the number of bins.  If
+array_like, specifies the bin edges</p>
+</div></blockquote>
+<p><strong>center_on_star</strong> : bool</p>
+<blockquote>
+<div><p>If true (DEFAULT), cylindrical r is calculated relative to the star</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>r_edges</strong> : SimArray</p>
+<blockquote>
+<div><p>Radial bin edges used for calculating h.  Length N+1</p>
+</div></blockquote>
+<p><strong>h</strong> : SimArray</p>
+<blockquote class="last">
+<div><p>Height as a function of r, calculated as the RMS of z over a bin.
+Length N</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="diskpy.disk.sigma">
+<code class="descclassname">diskpy.disk.</code><code class="descname">sigma</code><span class="sig-paren">(</span><em>snapshot</em>, <em>bins=100</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/diskpy/disk/_profiles.html#sigma"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#diskpy.disk.sigma" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates surface density vs r (relative to the center of mass)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>snapshot</strong> : tipsy snapshot</p>
+<p><strong>bins</strong> : int, list, array...</p>
+<blockquote>
+<div><p>Either the number of bins to use or the binedges to use</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>sigma</strong> : SimArray</p>
+<blockquote>
+<div><p>Surface density as a function of r</p>
+</div></blockquote>
+<p><strong>r_bins</strong> : SimArray</p>
+<blockquote class="last">
+<div><p>Radial bin edges</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="diskpy.disk.rho0_est">
+<code class="descclassname">diskpy.disk.</code><code class="descname">rho0_est</code><span class="sig-paren">(</span><em>h</em>, <em>sigma</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/diskpy/disk/_math.html#rho0_est"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#diskpy.disk.rho0_est" title="Permalink to this definition">¶</a></dt>
+<dd><p>Estimates the midplane density vs r as</p>
+<div class="math">
+\[\rho(z=0) = \frac{\Sigma}{h \sqrt{2 \pi}}\]</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>h, sigma</strong> : array(s)/SimArrays (same shape)</p>
+<blockquote class="last">
+<div><p>Disk height and surface density (estimated)</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="diskpy.disk.h_est">
+<code class="descclassname">diskpy.disk.</code><code class="descname">h_est</code><span class="sig-paren">(</span><em>r</em>, <em>M</em>, <em>m</em>, <em>T</em>, <em>gamma=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/diskpy/disk/_math.html#h_est"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#diskpy.disk.h_est" title="Permalink to this definition">¶</a></dt>
+<dd><p>Estimates disk height <span class="math">\(h=c_{s}/\Omega\)</span></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>r</strong> : SimArray, array, float</p>
+<blockquote>
+<div><p>Disk radii to calculate h at</p>
+</div></blockquote>
+<p><strong>M</strong> : SimArray, float</p>
+<blockquote>
+<div><p>Central star mass</p>
+</div></blockquote>
+<p><strong>m</strong> : SimArray, float</p>
+<blockquote>
+<div><p>Mean molecular mass (with units of mass)</p>
+</div></blockquote>
+<p><strong>T</strong> : SimArray, array, float</p>
+<blockquote>
+<div><p>Temperature as a function of r</p>
+</div></blockquote>
+<p><strong>gamma</strong> : float</p>
+<blockquote>
+<div><p>(optional) Adiabatic index to be used.  If temperature is not a
+functino of z, gamma should equal 1 (isothermal)</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>h</strong> : SimArray, float, array</p>
+<blockquote class="last">
+<div><p>Disk height vs. r (1st order estimate)</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </div>
 </div>
 
@@ -68,7 +357,7 @@
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">diskpy.disk package</a><ul>
-<li><a class="reference internal" href="#module-contents">Module contents</a></li>
+<li><a class="reference internal" href="#module-diskpy.disk">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -109,6 +398,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="right" >
           <a href="diskpy.pdmath.html" title="diskpy.pdmath package"
              >next</a> |</li>

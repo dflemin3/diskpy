@@ -36,6 +36,9 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
           <a href="diskpy.pychanga.hyak.html" title="diskpy.pychanga.hyak package"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">diskpy  documentation</a> &raquo;</li>
@@ -50,8 +53,190 @@
             
   <div class="section" id="diskpy-utils-package">
 <h1>diskpy.utils package<a class="headerlink" href="#diskpy-utils-package" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="module-contents">
-<h2>Module contents<a class="headerlink" href="#module-contents" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-diskpy.utils">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-diskpy.utils" title="Permalink to this headline">¶</a></h2>
+<p>Created on Thu Jul 16 11:18:26 2015</p>
+<p>&#64;author: ibackus</p>
+<dl class="function">
+<dt id="diskpy.utils.configparser">
+<code class="descclassname">diskpy.utils.</code><code class="descname">configparser</code><span class="sig-paren">(</span><em>fname</em>, <em>ftype='auto'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/diskpy/utils/_utils.html#configparser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#diskpy.utils.configparser" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><blockquote>
+<div>parameters = configparser(fname,ftype=&#8217;auto&#8217;)</div></blockquote>
+</div></blockquote>
+<p>Tries to parse ChaNGa configuration files</p>
+<p>ftype can be &#8216;auto&#8217;, &#8216;param&#8217;, or &#8216;director&#8217;.  If auto, config parser will
+try to determine the filetype on its own.</p>
+<dl class="docutils">
+<dt>returns:</dt>
+<dd><blockquote class="first last">
+<div>dictionary &#8216;parameters&#8217;.  The keys are the names of the parameters and
+the values are the values defined in the file fname</div></blockquote>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="diskpy.utils.configsave">
+<code class="descclassname">diskpy.utils.</code><code class="descname">configsave</code><span class="sig-paren">(</span><em>param</em>, <em>filename</em>, <em>ftype='auto'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/diskpy/utils/_utils.html#configsave"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#diskpy.utils.configsave" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div></div></blockquote>
+<p>Saves parameters defined by param (see configparser) to filename.
+Possible ftypes are &#8216;director&#8217; and &#8216;param&#8217;.  If set to auto, configsave
+tries to guess file type from the extension.</p>
+<blockquote>
+<div></div></blockquote>
+</dd></dl>
+
+<dl class="function">
+<dt id="diskpy.utils.units_from_param">
+<code class="descclassname">diskpy.utils.</code><code class="descname">units_from_param</code><span class="sig-paren">(</span><em>param</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/diskpy/utils/_utils.html#units_from_param"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#diskpy.utils.units_from_param" title="Permalink to this definition">¶</a></dt>
+<dd><p>Figures out the simulation units from a .param file</p>
+<p><strong>ARGUMENTS</strong></p>
+<dl class="docutils">
+<dt>param <span class="classifier-delimiter">:</span> <span class="classifier">str or param dict (see configparser)</span></dt>
+<dd>Simulation .param file or param dict loaded by configparser
+Can also be a list or numpy array of these in which case a list
+of units dicts is returned</dd>
+</dl>
+<p><strong>RETURNS</strong></p>
+<dl class="docutils">
+<dt>units <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
+<dd>A dictionary of the units used in the simulation, returned as
+pynbody units</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="diskpy.utils.strip_units">
+<code class="descclassname">diskpy.utils.</code><code class="descname">strip_units</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/diskpy/utils/_utils.html#strip_units"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#diskpy.utils.strip_units" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes the units from a SimArray and returns as a numpy array.  Note
+that x is copied so that it is not destroyed</p>
+<p>x can be a single SimArray or a tuple or list of SimArrays</p>
+<p>If any of the inputs are single number, they are returned as a number</p>
+<p>USAGE:</p>
+<p>array = strip_units(SimArray)</p>
+<p>array1, array2, ... = strip_units([SimArray1, SimArray2, ...])</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="diskpy.utils.set_units">
+<code class="descclassname">diskpy.utils.</code><code class="descname">set_units</code><span class="sig-paren">(</span><em>x</em>, <em>units</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/diskpy/utils/_utils.html#set_units"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#diskpy.utils.set_units" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the units of x to units.  If x has units, they are ignored.
+Does not destroy/alter x</p>
+<p>USAGE:</p>
+<p>SimArray = set_units(x, units)</p>
+<p>SimArray1, SimArray2, ... = set_units([x1, x2, ...], units)</p>
+<p>SimArray1, SimArray2, ... = set_units([x1, x2, ...], [units1, units2, ...])</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="diskpy.utils.match_units">
+<code class="descclassname">diskpy.utils.</code><code class="descname">match_units</code><span class="sig-paren">(</span><em>x</em>, <em>y</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/diskpy/utils/_utils.html#match_units"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#diskpy.utils.match_units" title="Permalink to this definition">¶</a></dt>
+<dd><p>Matches the units of x to y and returns x and y in the same units.</p>
+<p>IF x and y don&#8217;t have units, they are unchanged</p>
+<p>IF one of x or y has units, the unitless quantity is returned as a
+SimArray (see pb.array.SimArray) with the units of the other quantity.</p>
+<p>IF both have units, then an attempt is made to convert x into the units of
+y.  If this is not possible, an error is raised, for example if x is in
+units of &#8216;au&#8217; and y is in units of &#8216;Msol&#8217;</p>
+<dl class="docutils">
+<dt>x, y can be: scalar, array, SimArray, pynbody unit (eg pb.units.G),</dt>
+<dd>or a unit string (eg &#8216;Msol a**-2&#8217;)</dd>
+</dl>
+<p><strong>* RETURNS *</strong></p>
+<p>x, y are returned as a tuple</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="diskpy.utils.findfiles">
+<code class="descclassname">diskpy.utils.</code><code class="descname">findfiles</code><span class="sig-paren">(</span><em>filefilter='*'</em>, <em>basedir='.'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/diskpy/utils/_utils.html#findfiles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#diskpy.utils.findfiles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Recursively find files according to filefilter</p>
+<p>** ARGUMENTS **</p>
+<dl class="docutils">
+<dt>filefilter <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd>Filter for finding files.  ie, &#8216;<a href="#id1"><span class="problematic" id="id2">*</span></a>.jpg&#8217; or &#8216;file.txt&#8217;</dd>
+<dt>basedir <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd>Base directory to search.  Default is the current directory</dd>
+</dl>
+<p>** RETURNS **</p>
+<dl class="docutils">
+<dt>files <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
+<dd>A list of the full path to all files matching filefilter</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="diskpy.utils.pbverbosity">
+<code class="descclassname">diskpy.utils.</code><code class="descname">pbverbosity</code><span class="sig-paren">(</span><em>cmd=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/diskpy/utils/_utils.html#pbverbosity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#diskpy.utils.pbverbosity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Changes and returns pynbody verbosity.  Works for different versions
+of pynbody.</p>
+<p><strong>ARGUMENTS</strong></p>
+<dl class="docutils">
+<dt>cmd</dt>
+<dd>-If None (default) current verbosity level is returned, nothing is done
+-If &#8216;off&#8217;, pynbody is silenced
+-If &#8216;on&#8217;, pynbody verbosity is set on
+-If something else, cmd is assumed to be a verbosity level</dd>
+</dl>
+<p><strong>RETURNS</strong></p>
+<dl class="docutils">
+<dt>current_verbosity</dt>
+<dd>pynbody verbosity level before any changes were made</dd>
+</dl>
+<p><strong>EXAMPLES</strong></p>
+<p><em>Toggle pynbody verbosity</em></p>
+<blockquote>
+<div>current_verbosity = pbverbosity(&#8216;off&#8217;)
+...
+do stuff
+...
+pbverbosity(current_verbosity)</div></blockquote>
+</dd></dl>
+
+<dl class="function">
+<dt id="diskpy.utils.str2num">
+<code class="descclassname">diskpy.utils.</code><code class="descname">str2num</code><span class="sig-paren">(</span><em>string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/diskpy/utils/_utils.html#str2num"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#diskpy.utils.str2num" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tries to see if &#8216;string&#8217; is a number</p>
+<dl class="docutils">
+<dt>If &#8216;string&#8217; is a string, returns:</dt>
+<dd>int(string) for integers
+float(string) for floats
+&#8216;string&#8217; otherwise</dd>
+<dt>If &#8216;string&#8217; is a float or an integer, returns:</dt>
+<dd>string</dd>
+</dl>
+<p>If none of the above, treats it like a list or tuple
+and returns for each entry of &#8216;string&#8217; a float,int,
+or str as required.  Returns as a list
+&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8211;</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="diskpy.utils.get_module_names">
+<code class="descclassname">diskpy.utils.</code><code class="descname">get_module_names</code><span class="sig-paren">(</span><em>fname</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/diskpy/utils/_utils.html#get_module_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#diskpy.utils.get_module_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>An import utility that returns the module names in the directory of file.  
+Ignores filenames beginning with an underscore.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>fname</strong> : str</p>
+<blockquote>
+<div><p>Filename</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>modulenames</strong> : list</p>
+<blockquote class="last">
+<div><p>A list of the modules</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </div>
 </div>
 
@@ -64,7 +249,7 @@
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">diskpy.utils package</a><ul>
-<li><a class="reference internal" href="#module-contents">Module contents</a></li>
+<li><a class="reference internal" href="#module-diskpy.utils">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -102,6 +287,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="right" >
           <a href="diskpy.pychanga.hyak.html" title="diskpy.pychanga.hyak package"
              >previous</a> |</li>

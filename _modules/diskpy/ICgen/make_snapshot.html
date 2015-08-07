@@ -1,0 +1,265 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>diskpy.ICgen.make_snapshot &mdash; diskpy  documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="diskpy  documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">diskpy  documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for diskpy.ICgen.make_snapshot</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Created on Fri Mar 21 15:11:31 2014</span>
+
+<span class="sd">@author: ibackus</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__version__</span> <span class="o">=</span> <span class="s">&quot;$Revision: 1 $&quot;</span>
+<span class="c"># $Source$</span>
+
+<span class="kn">import</span> <span class="nn">pynbody</span>
+<span class="n">SimArray</span> <span class="o">=</span> <span class="n">pynbody</span><span class="o">.</span><span class="n">array</span><span class="o">.</span><span class="n">SimArray</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">gc</span>
+
+<span class="c"># diskpy packages</span>
+<span class="kn">from</span> <span class="nn">diskpy</span> <span class="kn">import</span> <span class="n">global_settings</span>
+<span class="kn">from</span> <span class="nn">diskpy.utils</span> <span class="kn">import</span> <span class="n">match_units</span><span class="p">,</span> <span class="n">configsave</span><span class="p">,</span> <span class="n">strip_units</span>
+<span class="kn">from</span> <span class="nn">diskpy.pychanga</span> <span class="kn">import</span> <span class="n">make_director</span><span class="p">,</span> <span class="n">make_param</span>
+<span class="kn">import</span> <span class="nn">calc_velocity</span>
+<span class="kn">import</span> <span class="nn">ICgen_utils</span>
+
+<div class="viewcode-block" id="snapshot_gen"><a class="viewcode-back" href="../../../diskpy.ICgen.html#diskpy.ICgen.make_snapshot.snapshot_gen">[docs]</a><span class="k">def</span> <span class="nf">snapshot_gen</span><span class="p">(</span><span class="n">ICobj</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generates a tipsy snapshot from the initial conditions object ICobj.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns snapshot, param</span>
+<span class="sd">    </span>
+<span class="sd">        snapshot: tipsy snapshot</span>
+<span class="sd">        param: dictionary containing info for a .param file</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">print</span> <span class="s">&#39;Generating snapshot...&#39;</span>
+    <span class="c"># Constants</span>
+    <span class="n">G</span> <span class="o">=</span> <span class="n">SimArray</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span><span class="s">&#39;G&#39;</span><span class="p">)</span>
+    <span class="c"># ------------------------------------</span>
+    <span class="c"># Load in things from ICobj</span>
+    <span class="c"># ------------------------------------</span>
+    <span class="k">print</span> <span class="s">&#39;Accessing data from ICs&#39;</span>
+    <span class="n">settings</span> <span class="o">=</span> <span class="n">ICobj</span><span class="o">.</span><span class="n">settings</span>
+    <span class="c"># filenames</span>
+    <span class="n">snapshotName</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">filenames</span><span class="o">.</span><span class="n">snapshotName</span>
+    <span class="n">paramName</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">filenames</span><span class="o">.</span><span class="n">paramName</span>
+        
+    <span class="c"># particle positions</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">ICobj</span><span class="o">.</span><span class="n">pos</span><span class="o">.</span><span class="n">r</span>
+    <span class="n">xyz</span> <span class="o">=</span> <span class="n">ICobj</span><span class="o">.</span><span class="n">pos</span><span class="o">.</span><span class="n">xyz</span>
+    <span class="c"># Number of particles</span>
+    <span class="n">nParticles</span> <span class="o">=</span> <span class="n">ICobj</span><span class="o">.</span><span class="n">pos</span><span class="o">.</span><span class="n">nParticles</span>
+    <span class="c"># molecular mass</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">physical</span><span class="o">.</span><span class="n">m</span>
+    <span class="c"># star mass</span>
+    <span class="n">m_star</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">physical</span><span class="o">.</span><span class="n">M</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="c"># disk mass</span>
+    <span class="n">m_disk</span> <span class="o">=</span> <span class="n">ICobj</span><span class="o">.</span><span class="n">sigma</span><span class="o">.</span><span class="n">m_disk</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">m_disk</span> <span class="o">=</span> <span class="n">match_units</span><span class="p">(</span><span class="n">m_disk</span><span class="p">,</span> <span class="n">m_star</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="c"># mass of the gas particles</span>
+    <span class="n">m_particles</span> <span class="o">=</span> <span class="n">m_disk</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">nParticles</span><span class="p">)</span>
+    <span class="c"># re-scale the particles (allows making of lo-mass disk)</span>
+    <span class="n">m_particles</span> <span class="o">*=</span> <span class="n">settings</span><span class="o">.</span><span class="n">snapshot</span><span class="o">.</span><span class="n">mScale</span>
+    
+    <span class="c"># -------------------------------------------------</span>
+    <span class="c"># Assign output</span>
+    <span class="c"># -------------------------------------------------</span>
+    <span class="k">print</span> <span class="s">&#39;Assigning data to snapshot&#39;</span>
+    <span class="c"># Get units all set up</span>
+    <span class="n">m_unit</span> <span class="o">=</span> <span class="n">m_star</span><span class="o">.</span><span class="n">units</span>
+    <span class="n">pos_unit</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">units</span>
+    
+    <span class="k">if</span> <span class="n">xyz</span><span class="o">.</span><span class="n">units</span> <span class="o">!=</span> <span class="n">r</span><span class="o">.</span><span class="n">units</span><span class="p">:</span>
+        
+        <span class="n">xyz</span><span class="o">.</span><span class="n">convert_units</span><span class="p">(</span><span class="n">pos_unit</span><span class="p">)</span>
+        
+    <span class="c"># time units are sqrt(L^3/GM)</span>
+    <span class="n">t_unit</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">pos_unit</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">((</span><span class="n">G</span><span class="o">*</span><span class="n">m_unit</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">units</span>
+    <span class="c"># velocity units are L/t</span>
+    <span class="n">v_unit</span> <span class="o">=</span> <span class="p">(</span><span class="n">pos_unit</span><span class="o">/</span><span class="n">t_unit</span><span class="p">)</span><span class="o">.</span><span class="n">ratio</span><span class="p">(</span><span class="s">&#39;km s**-1&#39;</span><span class="p">)</span>
+    <span class="c"># Make it a unit</span>
+    <span class="n">v_unit</span> <span class="o">=</span> <span class="n">pynbody</span><span class="o">.</span><span class="n">units</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="s">&#39;{0} km s**-1&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">v_unit</span><span class="p">))</span>
+    
+    <span class="c"># Other settings</span>
+    <span class="n">metals</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">snapshot</span><span class="o">.</span><span class="n">metals</span>
+    <span class="n">star_metals</span> <span class="o">=</span> <span class="n">metals</span>
+    
+    <span class="c"># -------------------------------------------------</span>
+    <span class="c"># Initialize snapshot</span>
+    <span class="c"># -------------------------------------------------</span>
+    <span class="c"># Note that empty pos, vel, and mass arrays are created in the snapshot</span>
+    <span class="n">snapshot</span> <span class="o">=</span> <span class="n">pynbody</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">star</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">gas</span><span class="o">=</span><span class="n">nParticles</span><span class="p">)</span>
+    <span class="n">snapshot</span><span class="p">[</span><span class="s">&#39;vel&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="n">v_unit</span>
+    <span class="n">snapshot</span><span class="p">[</span><span class="s">&#39;eps&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.01</span><span class="o">*</span><span class="n">SimArray</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">nParticles</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span> <span class="n">pos_unit</span><span class="p">)</span>
+    <span class="n">snapshot</span><span class="p">[</span><span class="s">&#39;metals&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">SimArray</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">nParticles</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">))</span>
+    <span class="n">snapshot</span><span class="p">[</span><span class="s">&#39;rho&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">SimArray</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">nParticles</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">))</span>
+    
+    <span class="n">snapshot</span><span class="o">.</span><span class="n">gas</span><span class="p">[</span><span class="s">&#39;pos&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xyz</span>
+    <span class="n">snapshot</span><span class="o">.</span><span class="n">gas</span><span class="p">[</span><span class="s">&#39;temp&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ICobj</span><span class="o">.</span><span class="n">T</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+    <span class="n">snapshot</span><span class="o">.</span><span class="n">gas</span><span class="p">[</span><span class="s">&#39;mass&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">m_particles</span>
+    <span class="n">snapshot</span><span class="o">.</span><span class="n">gas</span><span class="p">[</span><span class="s">&#39;metals&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">metals</span>
+    
+    <span class="n">snapshot</span><span class="o">.</span><span class="n">star</span><span class="p">[</span><span class="s">&#39;pos&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">SimArray</span><span class="p">([[</span> <span class="mf">0.</span><span class="p">,</span>  <span class="mf">0.</span><span class="p">,</span>  <span class="mf">0.</span><span class="p">]],</span><span class="n">pos_unit</span><span class="p">)</span>
+    <span class="n">snapshot</span><span class="o">.</span><span class="n">star</span><span class="p">[</span><span class="s">&#39;vel&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">SimArray</span><span class="p">([[</span> <span class="mf">0.</span><span class="p">,</span>  <span class="mf">0.</span><span class="p">,</span>  <span class="mf">0.</span><span class="p">]],</span> <span class="n">v_unit</span><span class="p">)</span>
+    <span class="n">snapshot</span><span class="o">.</span><span class="n">star</span><span class="p">[</span><span class="s">&#39;mass&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">m_star</span>
+    <span class="n">snapshot</span><span class="o">.</span><span class="n">star</span><span class="p">[</span><span class="s">&#39;metals&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">SimArray</span><span class="p">(</span><span class="n">star_metals</span><span class="p">)</span>
+    <span class="c"># Estimate the star&#39;s softening length as the closest particle distance</span>
+    <span class="n">snapshot</span><span class="o">.</span><span class="n">star</span><span class="p">[</span><span class="s">&#39;eps&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+    
+    <span class="c"># Make param file</span>
+    <span class="n">param</span> <span class="o">=</span> <span class="n">make_param</span><span class="p">(</span><span class="n">snapshot</span><span class="p">,</span> <span class="n">snapshotName</span><span class="p">)</span>
+    <span class="n">param</span><span class="p">[</span><span class="s">&#39;dMeanMolWeight&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">m</span>
+    <span class="n">eos</span> <span class="o">=</span> <span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">physical</span><span class="o">.</span><span class="n">eos</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    
+    <span class="k">if</span> <span class="n">eos</span> <span class="o">==</span> <span class="s">&#39;adiabatic&#39;</span><span class="p">:</span>
+        
+        <span class="n">param</span><span class="p">[</span><span class="s">&#39;bGasAdiabatic&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">param</span><span class="p">[</span><span class="s">&#39;bGasIsothermal&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        
+    <span class="n">param</span><span class="p">[</span><span class="s">&#39;dConstGamma&#39;</span><span class="p">]</span>
+       
+    <span class="n">gc</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+    
+    <span class="c"># -------------------------------------------------</span>
+    <span class="c"># CALCULATE VELOCITY USING calc_velocity.py.  This also estimates the </span>
+    <span class="c"># gravitational softening length eps</span>
+    <span class="c"># -------------------------------------------------</span>
+    <span class="k">print</span> <span class="s">&#39;Calculating circular velocity&#39;</span>
+    <span class="n">preset</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">changa_run</span><span class="o">.</span><span class="n">preset</span>
+    <span class="n">max_particles</span> <span class="o">=</span> <span class="n">global_settings</span><span class="p">[</span><span class="s">&#39;misc&#39;</span><span class="p">][</span><span class="s">&#39;max_particles&#39;</span><span class="p">]</span>
+    <span class="n">calc_velocity</span><span class="o">.</span><span class="n">v_xy</span><span class="p">(</span><span class="n">snapshot</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="n">changa_preset</span><span class="o">=</span><span class="n">preset</span><span class="p">,</span> <span class="n">max_particles</span><span class="o">=</span><span class="n">max_particles</span><span class="p">)</span>
+    
+    <span class="n">gc</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+    
+    <span class="c"># -------------------------------------------------</span>
+    <span class="c"># Estimate time step for changa to use</span>
+    <span class="c"># -------------------------------------------------</span>
+    <span class="c"># Save param file</span>
+    <span class="n">configsave</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">paramName</span><span class="p">,</span> <span class="s">&#39;param&#39;</span><span class="p">)</span>
+    <span class="c"># Save snapshot</span>
+    <span class="n">snapshot</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">snapshotName</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">pynbody</span><span class="o">.</span><span class="n">tipsy</span><span class="o">.</span><span class="n">TipsySnap</span><span class="p">)</span>
+    <span class="c"># est dDelta</span>
+    <span class="n">dDelta</span> <span class="o">=</span> <span class="n">ICgen_utils</span><span class="o">.</span><span class="n">est_time_step</span><span class="p">(</span><span class="n">paramName</span><span class="p">,</span> <span class="n">preset</span><span class="p">)</span>
+    <span class="n">param</span><span class="p">[</span><span class="s">&#39;dDelta&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dDelta</span>
+    
+    <span class="c"># -------------------------------------------------</span>
+    <span class="c"># Create director file</span>
+    <span class="c"># -------------------------------------------------</span>
+    <span class="c"># largest radius to plot</span>
+    <span class="n">r_director</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="mf">0.9</span> <span class="o">*</span> <span class="n">r</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+    <span class="c"># Maximum surface density</span>
+    <span class="n">sigma_min</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">ICobj</span><span class="o">.</span><span class="n">sigma</span><span class="p">(</span><span class="n">r_director</span><span class="p">))</span>
+    <span class="c"># surface density at largest radius</span>
+    <span class="n">sigma_max</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">ICobj</span><span class="o">.</span><span class="n">sigma</span><span class="o">.</span><span class="n">input_dict</span><span class="p">[</span><span class="s">&#39;sigma&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+    <span class="c"># Create director dict</span>
+    <span class="n">director</span> <span class="o">=</span> <span class="n">make_director</span><span class="p">(</span><span class="n">sigma_min</span><span class="p">,</span> <span class="n">sigma_max</span><span class="p">,</span> <span class="n">r_director</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">param</span><span class="p">[</span><span class="s">&#39;achOutName&#39;</span><span class="p">])</span>
+    <span class="c">## Save .director file</span>
+    <span class="c">#configsave(director, directorName, &#39;director&#39;)</span>
+    
+    <span class="c"># -------------------------------------------------</span>
+    <span class="c"># Wrap up</span>
+    <span class="c"># -------------------------------------------------</span>
+    <span class="k">print</span> <span class="s">&#39;Wrapping up&#39;</span>
+    <span class="c"># Now set the star particle&#39;s tform to a negative number.  This allows</span>
+    <span class="c"># UW ChaNGa treat it as a sink particle.</span>
+    <span class="n">snapshot</span><span class="o">.</span><span class="n">star</span><span class="p">[</span><span class="s">&#39;tform&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span>
+    
+    <span class="c"># Update params</span>
+    <span class="n">r_sink</span> <span class="o">=</span> <span class="n">strip_units</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
+    <span class="n">param</span><span class="p">[</span><span class="s">&#39;dSinkBoundOrbitRadius&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">r_sink</span>
+    <span class="n">param</span><span class="p">[</span><span class="s">&#39;dSinkRadius&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">r_sink</span>
+    <span class="n">param</span><span class="p">[</span><span class="s">&#39;dSinkMassMin&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.9</span> <span class="o">*</span> <span class="n">strip_units</span><span class="p">(</span><span class="n">m_star</span><span class="p">)</span>
+    <span class="n">param</span><span class="p">[</span><span class="s">&#39;bDoSinks&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    
+    <span class="k">return</span> <span class="n">snapshot</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="n">director</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">diskpy  documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Isaac Backus.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,658 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>diskpy.utils._utils &mdash; diskpy  documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="diskpy  documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">diskpy  documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for diskpy.utils._utils</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Created on Thu Jul 16 11:19:03 2015</span>
+
+<span class="sd">@author: ibackus</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">import</span> <span class="nn">fnmatch</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pynbody</span> <span class="kn">as</span> <span class="nn">pb</span>
+<span class="n">SimArray</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">array</span><span class="o">.</span><span class="n">SimArray</span>
+
+<div class="viewcode-block" id="configparser"><a class="viewcode-back" href="../../../diskpy.utils.html#diskpy.utils.configparser">[docs]</a><span class="k">def</span> <span class="nf">configparser</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span><span class="n">ftype</span><span class="o">=</span><span class="s">&#39;auto&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">     --------------------------------------------------</span>
+<span class="sd">        parameters = configparser(fname,ftype=&#39;auto&#39;)</span>
+
+<span class="sd">    Tries to parse ChaNGa configuration files</span>
+
+<span class="sd">    ftype can be &#39;auto&#39;, &#39;param&#39;, or &#39;director&#39;.  If auto, config parser will</span>
+<span class="sd">    try to determine the filetype on its own.</span>
+
+<span class="sd">    returns:</span>
+<span class="sd">        dictionary &#39;parameters&#39;.  The keys are the names of the parameters and</span>
+<span class="sd">        the values are the values defined in the file fname</span>
+<span class="sd">     --------------------------------------------------</span>
+<span class="sd">     &quot;&quot;&quot;</span>
+    <span class="n">types</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="s">&#39;param&#39;</span><span class="p">,</span><span class="s">&#39;director&#39;</span><span class="p">])</span>
+    <span class="n">ftype</span> <span class="o">=</span> <span class="n">ftype</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="n">param</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="n">ftype</span> <span class="o">==</span> <span class="s">&#39;auto&#39;</span><span class="p">:</span>
+        <span class="c"># Try using extension to determine file type</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">fname</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)</span>
+        <span class="n">ftype</span> <span class="o">=</span> <span class="n">a</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">types</span> <span class="o">==</span> <span class="n">ftype</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="c"># Could not find file type</span>
+        <span class="k">print</span> <span class="p">(</span><span class="s">&#39;Could not determine config filetype...exiting&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">param</span>
+        <span class="c"># Try to determine filetype</span>
+    <span class="c"># --------------------------------------------------</span>
+    <span class="c"># Parse param file</span>
+    <span class="c"># --------------------------------------------------</span>
+    <span class="k">if</span> <span class="n">ftype</span> <span class="o">==</span> <span class="s">&#39;param&#39;</span><span class="p">:</span>
+        <span class="n">farray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span><span class="n">delimiter</span><span class="o">=</span><span class="s">&#39;=&#39;</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">farray</span><span class="p">)):</span>
+            <span class="n">param</span><span class="p">[</span><span class="n">farray</span><span class="p">[</span><span class="n">n</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()]</span> <span class="o">=</span> <span class="n">str2num</span><span class="p">(</span><span class="n">farray</span><span class="p">[</span><span class="n">n</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+    <span class="c"># --------------------------------------------------</span>
+    <span class="c"># Parse director file</span>
+    <span class="c"># --------------------------------------------------</span>
+    <span class="k">elif</span> <span class="n">ftype</span> <span class="o">==</span> <span class="s">&#39;director&#39;</span><span class="p">:</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span><span class="s">&#39;r&#39;</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="c"># we&#39;re dealing with a flag</span>
+                <span class="n">param</span><span class="p">[</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">str2num</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">param</span><span class="p">[</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">str2num</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c"># This is an empty line</span>
+                <span class="k">pass</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="c"># --------------------------------------------------</span>
+    <span class="c"># Throw warning, return &#39;param&#39; as empty</span>
+    <span class="c"># --------------------------------------------------</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&#39;Still cannot determine filetype.&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">param</span>
+    </div>
+<div class="viewcode-block" id="configsave"><a class="viewcode-back" href="../../../diskpy.utils.html#diskpy.utils.configsave">[docs]</a><span class="k">def</span> <span class="nf">configsave</span><span class="p">(</span><span class="n">param</span><span class="p">,</span><span class="n">filename</span><span class="p">,</span><span class="n">ftype</span><span class="o">=</span><span class="s">&#39;auto&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">     --------------------------------------------------</span>
+<span class="sd">    Saves parameters defined by param (see configparser) to filename.</span>
+<span class="sd">    Possible ftypes are &#39;director&#39; and &#39;param&#39;.  If set to auto, configsave</span>
+<span class="sd">    tries to guess file type from the extension.</span>
+<span class="sd">     --------------------------------------------------</span>
+<span class="sd">     &quot;&quot;&quot;</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="s">&#39;w&#39;</span><span class="p">)</span>
+    <span class="n">ftype</span> <span class="o">=</span> <span class="n">ftype</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">ftype</span> <span class="o">==</span> <span class="s">&#39;auto&#39;</span><span class="p">:</span>
+        <span class="c"># Try to figure out filetype</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">filename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)</span>
+        <span class="n">ftype</span> <span class="o">=</span> <span class="n">a</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">ftype</span> <span class="o">==</span> <span class="s">&#39;param&#39;</span><span class="p">:</span>
+        <span class="n">pars</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">iteritems</span><span class="p">())</span>
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pars</span><span class="p">)):</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;{0:25s}= {1}</span><span class="se">\n</span><span class="s">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pars</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span><span class="n">pars</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="mi">1</span><span class="p">]))</span>
+    <span class="k">elif</span> <span class="n">ftype</span> <span class="o">==</span> <span class="s">&#39;director&#39;</span><span class="p">:</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">keys</span><span class="p">)):</span>
+            <span class="n">outstr</span> <span class="o">=</span> <span class="n">keys</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">outstr</span> <span class="o">==</span> <span class="n">values</span><span class="p">[</span><span class="n">n</span><span class="p">]:</span>
+                <span class="c"># We just have a flag</span>
+                <span class="k">pass</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="n">n</span><span class="p">],(</span><span class="nb">float</span><span class="p">,</span><span class="nb">int</span><span class="p">,</span><span class="nb">str</span><span class="p">)):</span>
+                <span class="n">outstr</span> <span class="o">=</span> <span class="n">outstr</span> <span class="o">+</span> <span class="s">&#39; {0}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="n">n</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">outstr</span> <span class="o">=</span> <span class="n">outstr</span> <span class="o">+</span> <span class="s">&#39; &#39;</span> <span class="o">+</span> <span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span><span class="n">values</span><span class="p">[</span><span class="n">n</span><span class="p">]))</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;{0}</span><span class="se">\n</span><span class="s">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">outstr</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c">#no file type</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&#39;no such filetype {0}</span><span class="se">\n</span><span class="s">Could not save&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ftype</span><span class="p">))</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    </div>
+<div class="viewcode-block" id="units_from_param"><a class="viewcode-back" href="../../../diskpy.utils.html#diskpy.utils.units_from_param">[docs]</a><span class="k">def</span> <span class="nf">units_from_param</span><span class="p">(</span><span class="n">param</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Figures out the simulation units from a .param file</span>
+
+<span class="sd">    **ARGUMENTS**</span>
+
+<span class="sd">    param : str or param dict (see configparser)</span>
+<span class="sd">        Simulation .param file or param dict loaded by configparser</span>
+<span class="sd">        Can also be a list or numpy array of these in which case a list</span>
+<span class="sd">        of units dicts is returned</span>
+
+<span class="sd">    **RETURNS**</span>
+
+<span class="sd">    units : dict</span>
+<span class="sd">        A dictionary of the units used in the simulation, returned as</span>
+<span class="sd">        pynbody units</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c"># Define function to load the units from a given param</span>
+    <span class="k">def</span> <span class="nf">_load_units</span><span class="p">(</span><span class="n">param</span><span class="p">):</span>
+
+        <span class="c"># Load param if necessary</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+
+            <span class="n">param</span> <span class="o">=</span> <span class="n">configparser</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="s">&#39;param&#39;</span><span class="p">)</span>
+
+        <span class="c"># Universal G</span>
+        <span class="n">G</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">units</span><span class="o">.</span><span class="n">G</span>
+
+        <span class="c"># Load units</span>
+        <span class="n">dKpcUnit</span> <span class="o">=</span> <span class="n">param</span><span class="p">[</span><span class="s">&#39;dKpcUnit&#39;</span><span class="p">]</span>
+        <span class="n">dMsolUnit</span> <span class="o">=</span> <span class="n">param</span><span class="p">[</span><span class="s">&#39;dMsolUnit&#39;</span><span class="p">]</span>
+
+        <span class="c"># Set up pynbody units</span>
+        <span class="n">m_unit</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">units</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="s">&#39;{0} Msol&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dMsolUnit</span><span class="p">))</span>
+        <span class="n">l_unit</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">units</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="s">&#39;{0} kpc&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dKpcUnit</span><span class="p">))</span>
+        <span class="n">t_unit</span> <span class="o">=</span> <span class="p">(</span><span class="n">l_unit</span><span class="o">**</span><span class="mi">3</span><span class="o">/</span><span class="p">(</span><span class="n">G</span><span class="o">*</span><span class="n">m_unit</span><span class="p">))</span><span class="o">**</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="c"># Convert the time unit to something sensible</span>
+        <span class="n">years</span> <span class="o">=</span> <span class="n">t_unit</span><span class="o">.</span><span class="n">in_units</span><span class="p">(</span><span class="s">&#39;yr&#39;</span><span class="p">)</span>
+        <span class="n">t_unit</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">units</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="s">&#39;{0} yr&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">years</span><span class="p">))</span>
+
+        <span class="c"># Return</span>
+        <span class="n">outdict</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;l_unit&#39;</span><span class="p">:</span><span class="n">l_unit</span><span class="p">,</span> <span class="s">&#39;m_unit&#39;</span><span class="p">:</span><span class="n">m_unit</span><span class="p">,</span> <span class="s">&#39;t_unit&#39;</span><span class="p">:</span><span class="n">t_unit</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">outdict</span>
+
+    <span class="c"># Iterate over param if necessary</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)):</span>
+
+        <span class="n">outlist</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">par</span> <span class="ow">in</span> <span class="n">param</span><span class="p">:</span>
+
+            <span class="n">outlist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_load_units</span><span class="p">(</span><span class="n">par</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">outlist</span>
+
+    <span class="k">else</span><span class="p">:</span>
+
+        <span class="c"># Not iterable</span>
+        <span class="k">return</span> <span class="n">_load_units</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
+        </div>
+<div class="viewcode-block" id="strip_units"><a class="viewcode-back" href="../../../diskpy.utils.html#diskpy.utils.strip_units">[docs]</a><span class="k">def</span> <span class="nf">strip_units</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Removes the units from a SimArray and returns as a numpy array.  Note</span>
+<span class="sd">    that x is copied so that it is not destroyed</span>
+
+<span class="sd">    x can be a single SimArray or a tuple or list of SimArrays</span>
+
+<span class="sd">    If any of the inputs are single number, they are returned as a number</span>
+
+<span class="sd">    USAGE:</span>
+
+<span class="sd">    array = strip_units(SimArray)</span>
+
+<span class="sd">    array1, array2, ... = strip_units([SimArray1, SimArray2, ...])</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">,</span><span class="nb">list</span><span class="p">)):</span>
+
+        <span class="c"># loop through and assign output</span>
+        <span class="n">x_out</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">x_i</span> <span class="ow">in</span> <span class="n">x</span><span class="p">:</span>
+            
+            <span class="n">x_i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">x_i</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">x_i</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="c"># There is only one element in x_i.  Make sure to return it as</span>
+                <span class="c"># a number  (not an array)</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">x_i</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="c"># This is a zero dimensional SimArray</span>
+                    <span class="n">x_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x_i</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c"># This is 1 dimensional SimArray</span>
+                    <span class="n">x_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x_i</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+            <span class="k">else</span><span class="p">:</span>
+
+                <span class="c">#This is a multi-element SimArray</span>
+                <span class="n">x_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">x_i</span><span class="o">.</span><span class="n">tolist</span><span class="p">()))</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="c"># There is only one element in x_i.  Return as a number</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c"># This is a 0 dimensional SimArray</span>
+                <span class="n">x_out</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c"># This a 1 dimensional SimArray</span>
+                <span class="n">x_out</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="n">x_out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+
+    <span class="k">return</span> <span class="n">x_out</span>
+    </div>
+<div class="viewcode-block" id="set_units"><a class="viewcode-back" href="../../../diskpy.utils.html#diskpy.utils.set_units">[docs]</a><span class="k">def</span> <span class="nf">set_units</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">units</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Sets the units of x to units.  If x has units, they are ignored.</span>
+<span class="sd">    Does not destroy/alter x</span>
+
+<span class="sd">    USAGE:</span>
+
+<span class="sd">    SimArray = set_units(x, units)</span>
+
+<span class="sd">    SimArray1, SimArray2, ... = set_units([x1, x2, ...], units)</span>
+
+<span class="sd">    SimArray1, SimArray2, ... = set_units([x1, x2, ...], [units1, units2, ...])</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">,</span><span class="nb">list</span><span class="p">)):</span>
+
+        <span class="n">x_out</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">units</span><span class="p">,</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">list</span><span class="p">)):</span>
+
+            <span class="n">units</span> <span class="o">=</span> <span class="p">[</span><span class="n">units</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)):</span>
+
+            <span class="n">x_i</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">pb</span><span class="o">.</span><span class="n">units</span><span class="o">.</span><span class="n">has_units</span><span class="p">(</span><span class="n">x_i</span><span class="p">):</span>
+
+                <span class="n">x_i_array</span> <span class="o">=</span> <span class="n">strip_units</span><span class="p">(</span><span class="n">x_i</span><span class="p">)</span>
+                <span class="n">x_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">SimArray</span><span class="p">(</span><span class="n">x_i_array</span><span class="p">,</span> <span class="n">units</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+
+            <span class="k">else</span><span class="p">:</span>
+
+                <span class="n">x_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">SimArray</span><span class="p">(</span><span class="n">x_i</span><span class="p">,</span> <span class="n">units</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+
+    <span class="k">else</span><span class="p">:</span>
+
+        <span class="k">if</span> <span class="n">pb</span><span class="o">.</span><span class="n">units</span><span class="o">.</span><span class="n">has_units</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+
+            <span class="n">x_array</span> <span class="o">=</span> <span class="n">strip_units</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="n">x_out</span> <span class="o">=</span> <span class="n">SimArray</span><span class="p">(</span><span class="n">x_array</span><span class="p">,</span> <span class="n">units</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="n">x_out</span> <span class="o">=</span> <span class="n">SimArray</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">units</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">x_out</span>
+    </div>
+<div class="viewcode-block" id="match_units"><a class="viewcode-back" href="../../../diskpy.utils.html#diskpy.utils.match_units">[docs]</a><span class="k">def</span> <span class="nf">match_units</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Matches the units of x to y and returns x and y in the same units.</span>
+
+<span class="sd">    IF x and y don&#39;t have units, they are unchanged</span>
+
+<span class="sd">    IF one of x or y has units, the unitless quantity is returned as a</span>
+<span class="sd">    SimArray (see pb.array.SimArray) with the units of the other quantity.</span>
+
+<span class="sd">    IF both have units, then an attempt is made to convert x into the units of</span>
+<span class="sd">    y.  If this is not possible, an error is raised, for example if x is in</span>
+<span class="sd">    units of &#39;au&#39; and y is in units of &#39;Msol&#39;</span>
+
+<span class="sd">    x, y can be: scalar, array, SimArray, pynbody unit (eg pb.units.G),</span>
+<span class="sd">        or a unit string (eg &#39;Msol a**-2&#39;)</span>
+
+
+<span class="sd">    *** RETURNS ***</span>
+
+<span class="sd">    x, y are returned as a tuple</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># ----------------------------------------------</span>
+    <span class="c"># Check if either is a string</span>
+    <span class="c"># ----------------------------------------------</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+
+        <span class="n">x</span> <span class="o">=</span> <span class="n">SimArray</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="nb">str</span><span class="p">):</span>
+
+        <span class="n">y</span> <span class="o">=</span> <span class="n">SimArray</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+    <span class="c"># ----------------------------------------------</span>
+    <span class="c"># Check if one is a pynbody unit</span>
+    <span class="c"># ----------------------------------------------</span>
+    <span class="c"># If one is a named unit (eg pb.units.G), convert to SimArray</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">pb</span><span class="o">.</span><span class="n">units</span><span class="o">.</span><span class="n">UnitBase</span><span class="p">):</span>
+
+        <span class="n">x</span> <span class="o">=</span> <span class="n">SimArray</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">pb</span><span class="o">.</span><span class="n">units</span><span class="o">.</span><span class="n">UnitBase</span><span class="p">):</span>
+
+        <span class="n">y</span> <span class="o">=</span> <span class="n">SimArray</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+    <span class="c"># ----------------------------------------------</span>
+    <span class="c"># Check the units</span>
+    <span class="c"># ----------------------------------------------</span>
+    <span class="c"># If both have units, try to convert x to the units of y</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">pb</span><span class="o">.</span><span class="n">units</span><span class="o">.</span><span class="n">has_units</span><span class="p">(</span><span class="n">x</span><span class="p">))</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">pb</span><span class="o">.</span><span class="n">units</span><span class="o">.</span><span class="n">has_units</span><span class="p">(</span><span class="n">y</span><span class="p">)):</span>
+
+        <span class="n">x_out</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">in_units</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">units</span><span class="p">))</span>
+        <span class="n">y_out</span> <span class="o">=</span> <span class="n">y</span>
+
+    <span class="c"># If only x has units, make y a SimArray with the units of x</span>
+    <span class="k">elif</span> <span class="p">(</span><span class="n">pb</span><span class="o">.</span><span class="n">units</span><span class="o">.</span><span class="n">has_units</span><span class="p">(</span><span class="n">x</span><span class="p">)):</span>
+
+        <span class="n">y_out</span> <span class="o">=</span> <span class="n">SimArray</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">units</span><span class="p">)</span>
+        <span class="n">x_out</span> <span class="o">=</span> <span class="n">x</span>
+
+    <span class="c"># If only y has units, make x a SimArray with the units of y</span>
+    <span class="k">elif</span> <span class="p">(</span><span class="n">pb</span><span class="o">.</span><span class="n">units</span><span class="o">.</span><span class="n">has_units</span><span class="p">(</span><span class="n">y</span><span class="p">)):</span>
+
+        <span class="n">x_out</span> <span class="o">=</span> <span class="n">SimArray</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">.</span><span class="n">units</span><span class="p">)</span>
+        <span class="n">y_out</span> <span class="o">=</span> <span class="n">y</span>
+
+    <span class="c"># Otherwise, neither has units</span>
+    <span class="k">else</span><span class="p">:</span>
+
+        <span class="n">x_out</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">y_out</span> <span class="o">=</span> <span class="n">y</span>
+
+    <span class="c"># Try to copy so that changing x_out, y_out will not change x,y</span>
+    <span class="k">try</span><span class="p">:</span>
+
+        <span class="n">x_out</span> <span class="o">=</span> <span class="n">x_out</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+
+        <span class="k">pass</span>
+
+    <span class="k">try</span><span class="p">:</span>
+
+        <span class="n">y_out</span> <span class="o">=</span> <span class="n">y_out</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+
+        <span class="k">pass</span>
+
+    <span class="k">return</span> <span class="n">x_out</span><span class="p">,</span> <span class="n">y_out</span>
+    </div>
+<div class="viewcode-block" id="findfiles"><a class="viewcode-back" href="../../../diskpy.utils.html#diskpy.utils.findfiles">[docs]</a><span class="k">def</span> <span class="nf">findfiles</span><span class="p">(</span><span class="n">filefilter</span><span class="o">=</span><span class="s">&#39;*&#39;</span><span class="p">,</span> <span class="n">basedir</span><span class="o">=</span><span class="s">&#39;.&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Recursively find files according to filefilter</span>
+
+<span class="sd">    ** ARGUMENTS **</span>
+
+<span class="sd">    filefilter : str</span>
+<span class="sd">        Filter for finding files.  ie, &#39;*.jpg&#39; or &#39;file.txt&#39;</span>
+
+<span class="sd">    basedir : str</span>
+<span class="sd">        Base directory to search.  Default is the current directory</span>
+
+<span class="sd">    ** RETURNS **</span>
+
+<span class="sd">    files : list</span>
+<span class="sd">        A list of the full path to all files matching filefilter</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">matches</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">root</span><span class="p">,</span> <span class="n">dirnames</span><span class="p">,</span> <span class="n">filenames</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">basedir</span><span class="p">):</span>
+
+        <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">fnmatch</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">filenames</span><span class="p">,</span> <span class="n">filefilter</span><span class="p">):</span>
+            <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+            <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+
+            <span class="n">matches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">matches</span>
+</div>
+<div class="viewcode-block" id="pbverbosity"><a class="viewcode-back" href="../../../diskpy.utils.html#diskpy.utils.pbverbosity">[docs]</a><span class="k">def</span> <span class="nf">pbverbosity</span><span class="p">(</span><span class="n">cmd</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Changes and returns pynbody verbosity.  Works for different versions</span>
+<span class="sd">    of pynbody.</span>
+
+<span class="sd">    **ARGUMENTS**</span>
+
+<span class="sd">    cmd</span>
+<span class="sd">        -If None (default) current verbosity level is returned, nothing is done</span>
+<span class="sd">        -If &#39;off&#39;, pynbody is silenced</span>
+<span class="sd">        -If &#39;on&#39;, pynbody verbosity is set on</span>
+<span class="sd">        -If something else, cmd is assumed to be a verbosity level</span>
+
+<span class="sd">    **RETURNS**</span>
+
+<span class="sd">    current_verbosity</span>
+<span class="sd">        pynbody verbosity level before any changes were made</span>
+
+<span class="sd">    **EXAMPLES**</span>
+
+<span class="sd">    *Toggle pynbody verbosity*</span>
+
+<span class="sd">        current_verbosity = pbverbosity(&#39;off&#39;)</span>
+<span class="sd">        ...</span>
+<span class="sd">        do stuff</span>
+<span class="sd">        ...</span>
+<span class="sd">        pbverbosity(current_verbosity)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c"># -----------------------------</span>
+    <span class="c"># Get current verbosity level</span>
+    <span class="c"># -----------------------------</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">pb</span><span class="p">,</span> <span class="s">&#39;logger&#39;</span><span class="p">):</span>
+        <span class="c"># As of v0.30, pynbody uses python&#39;s logging to handle verbosity</span>
+        <span class="n">logger</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="n">current_verbosity</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">getEffectiveLevel</span><span class="p">()</span>
+        <span class="n">pb</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+
+        <span class="c"># For pynbody version &lt; 0.3, verbosity is handled in the config</span>
+        <span class="n">logger</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="n">current_verbosity</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s">&#39;verbose&#39;</span><span class="p">]</span>
+
+    <span class="c"># -----------------------------</span>
+    <span class="c"># Change verbosity</span>
+    <span class="c"># -----------------------------</span>
+    <span class="k">if</span> <span class="n">cmd</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="c"># Don&#39;t change verbosity.  just return the current verbosity</span>
+        <span class="k">pass</span>
+
+    <span class="k">elif</span> <span class="n">cmd</span> <span class="o">==</span> <span class="s">&#39;off&#39;</span><span class="p">:</span>
+        <span class="c"># Toggle verbosity off</span>
+        <span class="k">if</span> <span class="n">logger</span><span class="p">:</span>
+
+            <span class="n">pb</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="n">pb</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s">&#39;verbose&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">False</span>
+
+    <span class="k">elif</span> <span class="n">cmd</span> <span class="o">==</span> <span class="s">&#39;on&#39;</span><span class="p">:</span>
+        <span class="c"># Toggle verbosity on</span>
+        <span class="k">if</span> <span class="n">logger</span><span class="p">:</span>
+
+            <span class="n">pb</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="n">pb</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s">&#39;verbose&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c"># Set verbosity to the verbosity level specified by cmd</span>
+        <span class="k">if</span> <span class="n">logger</span><span class="p">:</span>
+
+            <span class="n">pb</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="n">pb</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s">&#39;verbose&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cmd</span>
+
+    <span class="c"># Return the verbosity level before any changes were made</span>
+    <span class="k">return</span> <span class="n">current_verbosity</span>
+    </div>
+<div class="viewcode-block" id="str2num"><a class="viewcode-back" href="../../../diskpy.utils.html#diskpy.utils.str2num">[docs]</a><span class="k">def</span> <span class="nf">str2num</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">     --------------------------------------------------</span>
+<span class="sd">     Tries to see if &#39;string&#39; is a number</span>
+
+<span class="sd">     If &#39;string&#39; is a string, returns:</span>
+<span class="sd">       int(string) for integers</span>
+<span class="sd">       float(string) for floats</span>
+<span class="sd">       &#39;string&#39; otherwise</span>
+
+<span class="sd">     If &#39;string&#39; is a float or an integer, returns:</span>
+<span class="sd">       string</span>
+
+<span class="sd">     If none of the above, treats it like a list or tuple</span>
+<span class="sd">     and returns for each entry of &#39;string&#39; a float,int,</span>
+<span class="sd">     or str as required.  Returns as a list</span>
+<span class="sd">     --------------------------------------------------</span>
+<span class="sd">     &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">string</span><span class="p">,</span><span class="nb">int</span><span class="p">):</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">string</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">string</span><span class="p">,</span><span class="nb">float</span><span class="p">):</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">string</span>
+    <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">string</span><span class="p">,</span><span class="nb">str</span><span class="p">):</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">string</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">a</span><span class="p">))</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">a</span><span class="p">))</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">output</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="n">output</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">string</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">output</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">pass</span>
+    <span class="k">return</span> <span class="n">output</span>
+    </div>
+<div class="viewcode-block" id="get_module_names"><a class="viewcode-back" href="../../../diskpy.utils.html#diskpy.utils.get_module_names">[docs]</a><span class="k">def</span> <span class="nf">get_module_names</span><span class="p">(</span><span class="n">fname</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    An import utility that returns the module names in the directory of file.  </span>
+<span class="sd">    Ignores filenames beginning with an underscore.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    </span>
+<span class="sd">    fname : str</span>
+<span class="sd">        Filename</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    </span>
+<span class="sd">    modulenames : list</span>
+<span class="sd">        A list of the modules</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">fname</span><span class="p">))</span>
+    <span class="n">searchstr</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s">&#39;*.py&#39;</span><span class="p">)</span>
+    <span class="n">fullpaths</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">searchstr</span><span class="p">)</span>
+    
+    <span class="n">fnames</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="k">for</span> <span class="n">fullpath</span> <span class="ow">in</span> <span class="n">fullpaths</span><span class="p">:</span>
+        
+        <span class="n">f</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">fullpath</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        
+        <span class="k">if</span> <span class="n">f</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="s">&#39;_&#39;</span><span class="p">:</span>
+            
+            <span class="n">fnames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fullpath</span><span class="p">)</span>
+    
+    <span class="n">modulenames</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">fnames</span><span class="p">:</span>
+        
+        <span class="n">modulename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">fname</span><span class="p">)[</span><span class="mi">0</span><span class="p">])[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">modulenames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">modulename</span><span class="p">)</span>
+        
+    <span class="k">return</span> <span class="n">modulenames</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">diskpy  documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Isaac Backus.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

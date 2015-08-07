@@ -1,0 +1,570 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>diskpy.ICgen.ICgen_settings &mdash; diskpy  documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="diskpy  documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">diskpy  documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for diskpy.ICgen.ICgen_settings</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Defines the settings class for ICgen</span>
+
+<span class="sd">USAGE:</span>
+
+<span class="sd">Load settings from file:</span>
+<span class="sd">    </span>
+<span class="sd">    import ICgen_settings</span>
+<span class="sd">    settings = ICgen_settings.settings(&#39;filename&#39;)</span>
+<span class="sd">    </span>
+<span class="sd">Load settings from defaults (Defined in ICgen_settings.py):</span>
+
+<span class="sd">    import ICgen_settings</span>
+<span class="sd">    settings = ICgen_settings.settings()</span>
+
+<span class="sd">AFTER LOADING:    </span>
+<span class="sd">Access settings:</span>
+
+<span class="sd">    # Return number of particles:</span>
+<span class="sd">    settings.pos_gen.nParticles</span>
+<span class="sd">    </span>
+<span class="sd">    # Etc...</span>
+<span class="sd">    </span>
+<span class="sd">Echo settings:</span>
+
+<span class="sd">    # Echo ALL settings</span>
+<span class="sd">    settings()</span>
+<span class="sd">    </span>
+<span class="sd">    # Echo filenames</span>
+<span class="sd">    settings.filenames()</span>
+<span class="sd">    </span>
+<span class="sd">    # Etc...</span>
+<span class="sd">    </span>
+<span class="sd">READ/WRITE</span>
+
+<span class="sd">Write (save) settings to disk:</span>
+
+<span class="sd">    settings.write(&#39;filename&#39;)</span>
+<span class="sd">    </span>
+<span class="sd">Load (read) settings from disk:</span>
+
+<span class="sd">    settings.load(&#39;filename&#39;)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__version__</span> <span class="o">=</span> <span class="s">&quot;$Revision: 5 $&quot;</span>
+<span class="c"># $Source$</span>
+<span class="n">__iversion__</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="nb">str</span><span class="o">.</span><span class="n">isdigit</span><span class="p">,</span><span class="n">__version__</span><span class="p">))</span>
+
+<span class="kn">from</span> <span class="nn">ICgen_utils</span> <span class="kn">import</span> <span class="n">checkversion</span><span class="p">,</span> <span class="n">pickle_import</span>
+
+<span class="kn">import</span> <span class="nn">pynbody</span>
+<span class="n">SimArray</span> <span class="o">=</span> <span class="n">pynbody</span><span class="o">.</span><span class="n">array</span><span class="o">.</span><span class="n">SimArray</span>
+<span class="kn">import</span> <span class="nn">cPickle</span> <span class="kn">as</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="n">_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">__file__</span><span class="p">))</span>
+
+<span class="sd">&quot;&quot;&quot; **************************************************</span>
+<span class="sd">SETTINGS</span>
+
+<span class="sd">ALL of these variable names MUST be set!  </span>
+<span class="sd">************************************************** &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="filenames"><a class="viewcode-back" href="../../../diskpy.ICgen.html#diskpy.ICgen.ICgen_settings.filenames">[docs]</a><span class="k">class</span> <span class="nc">filenames</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Filenames</span>
+<span class="sd">    </span>
+<span class="sd">    To echo settings:</span>
+<span class="sd">        filenames()</span>
+<span class="sd">    To access settings:</span>
+<span class="sd">        filenames.settingname</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        
+
+        <span class="c"># Initial conditions filename</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">IC_file_name</span> <span class="o">=</span> <span class="s">&#39;IC.p&#39;</span>
+        <span class="c"># Filename to save tipsy snapshot to</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">snapshotName</span> <span class="o">=</span> <span class="s">&#39;snapshot.std&#39;</span>
+        <span class="c"># Filename to save ChaNGa .param file to.  If None, no file saved</span>
+        <span class="c"># To edit settings, you can change default.param or the output .param file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">paramName</span> <span class="o">=</span> <span class="s">&#39;snapshot.param&#39;</span>
+        <span class="c"># Default .director filename</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">directorName</span> <span class="o">=</span> <span class="s">&#39;snapshot.director&#39;</span>
+        
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        
+        <span class="n">print_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;Filenames:&#39;</span><span class="p">)</span>
+            </div>
+<div class="viewcode-block" id="physical"><a class="viewcode-back" href="../../../diskpy.ICgen.html#diskpy.ICgen.ICgen_settings.physical">[docs]</a><span class="k">class</span> <span class="nc">physical</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Defines default physical parameters</span>
+<span class="sd">    </span>
+<span class="sd">    To echo settings:</span>
+<span class="sd">        physical()</span>
+<span class="sd">    To access settings:</span>
+<span class="sd">        physical.settingname</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">binsys</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">starMode</span> <span class="o">=</span> <span class="s">&#39;single&#39;</span><span class="p">):</span>
+        <span class="c">#editted by dflemin3 07/10/2015</span>
+        <span class="c"># Molecular mass of the gass.  If m = None, Assumed to be H2, m = 2.00132 m_p</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">m</span> <span class="o">=</span> <span class="n">SimArray</span><span class="p">(</span><span class="mf">2.00132</span><span class="p">,</span><span class="s">&#39;m_p&#39;</span><span class="p">)</span>
+        <span class="c"># Mass of the star (or total mass of binary system).  If M = None, Assumed to be 0.33 Msol</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">M</span> <span class="o">=</span> <span class="n">SimArray</span><span class="p">(</span><span class="mf">0.33</span> <span class="p">,</span> <span class="s">&#39;Msol&#39;</span><span class="p">)</span>
+        <span class="c"># CONSTANTS FOR CALCULATING TEMPERATURE.  T(r) = T0(r/r0)^Tpower.</span>
+        <span class="c"># See calc_temp.py.  If None, defaults to settings in calc_temp.py</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">T0</span> <span class="o">=</span> <span class="n">SimArray</span><span class="p">(</span><span class="mf">332.406</span><span class="p">,</span><span class="s">&#39;K&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">r0</span> <span class="o">=</span> <span class="n">SimArray</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span><span class="s">&#39;au&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Tpower</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.59</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Tmin</span> <span class="o">=</span> <span class="n">SimArray</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s">&#39;K&#39;</span><span class="p">)</span>    <span class="c"># Minimum temperature cut-off</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Tmax</span> <span class="o">=</span> <span class="n">SimArray</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="s">&#39;K&#39;</span><span class="p">)</span>
+        <span class="c"># Equation of state parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eos</span> <span class="o">=</span> <span class="s">&#39;isothermal&#39;</span> <span class="c"># isothermal or adiabatic</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gamma</span> <span class="o">=</span> <span class="mf">1.4</span>
+        
+        <span class="c"># Binary parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">starMode</span> <span class="o">=</span> <span class="n">starMode</span> <span class="c">#single star or binary?</span>
+        <span class="c">#Binary Orbital Parameters...store in Binary class from binary.py</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">binsys</span> <span class="o">=</span> <span class="n">binsys</span>
+        
+        <span class="k">if</span> <span class="n">kind</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            
+            <span class="n">kind</span> <span class="o">=</span> <span class="s">&#39;powerlaw&#39;</span>
+            
+        <span class="bp">self</span><span class="o">.</span><span class="n">kind</span> <span class="o">=</span> <span class="n">kind</span> <span class="c"># Type of temperature profile.  See calc_temp.py</span>
+        
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        
+        <span class="n">print_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;General physical parameters:&#39;</span><span class="p">)</span>
+        </div>
+<div class="viewcode-block" id="sigma"><a class="viewcode-back" href="../../../diskpy.ICgen.html#diskpy.ICgen.ICgen_settings.sigma">[docs]</a><span class="k">class</span> <span class="nc">sigma</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Settings for generating a surface density profile</span>
+<span class="sd">    </span>
+<span class="sd">    To echo:</span>
+<span class="sd">        sigma()</span>
+<span class="sd">    To access settings:</span>
+<span class="sd">        sigma.settingname</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s">&#39;powerlaw&#39;</span><span class="p">):</span>
+        
+        <span class="c"># Kind of surface density profile to use.  Options:</span>
+        <span class="c">#   &#39;powerlaw&#39;</span>
+        <span class="c">#   &#39;MQWS&#39;</span>
+        <span class="c">#   &#39;viscous&#39;</span>
+        <span class="c"># Setting self.kind automatically initializes the default settings</span>
+        <span class="c"># for that kind</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kind</span> <span class="o">=</span> <span class="n">kind</span>
+        
+    <span class="k">def</span> <span class="nf">_set_defaults</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c"># Set default attributes:</span>
+        <span class="c"># First delete all attributes but kind</span>
+        <span class="n">kind</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kind</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            
+            <span class="k">if</span> <span class="n">key</span> <span class="o">!=</span> <span class="s">&#39;kind&#39;</span><span class="p">:</span>
+                
+                <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+                
+        <span class="c"># Now set attributes</span>
+        <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="s">&#39;powerlaw&#39;</span><span class="p">:</span>
+            
+            <span class="bp">self</span><span class="o">.</span><span class="n">Rd</span> <span class="o">=</span> <span class="n">SimArray</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span><span class="s">&#39;au&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rin</span> <span class="o">=</span> <span class="mf">0.5</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rmax</span> <span class="o">=</span> <span class="mf">2.3</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cutlength</span> <span class="o">=</span> <span class="mf">0.3</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Qmin</span> <span class="o">=</span> <span class="mf">1.5</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">n_points</span> <span class="o">=</span> <span class="mi">1000</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">power</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span> <span class="c">#Power on powerlaw of form sigma ~ r^(power)</span>
+       
+     
+        <span class="k">if</span> <span class="p">(</span><span class="n">kind</span> <span class="o">==</span> <span class="s">&#39;mqws&#39;</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">kind</span> <span class="o">==</span> <span class="s">&#39;MQWS&#39;</span><span class="p">):</span>
+            
+            <span class="bp">self</span><span class="o">.</span><span class="n">rin</span> <span class="o">=</span> <span class="mf">4.0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rout</span> <span class="o">=</span> <span class="mf">20.0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rmax</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">power</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">m_disk</span> <span class="o">=</span> <span class="n">SimArray</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="s">&#39;Msol&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">n_points</span> <span class="o">=</span> <span class="mi">1000</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Qmin</span> <span class="o">=</span> <span class="mf">1.5</span>
+            
+        <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="s">&#39;viscous&#39;</span><span class="p">:</span>
+            
+            <span class="bp">self</span><span class="o">.</span><span class="n">Rd</span> <span class="o">=</span> <span class="n">SimArray</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="s">&#39;au&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rin</span> <span class="o">=</span> <span class="mf">0.1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rmax</span> <span class="o">=</span> <span class="mf">2.0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">power</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">m_disk</span> <span class="o">=</span> <span class="n">SimArray</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="s">&#39;Msol&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">n_points</span> <span class="o">=</span> <span class="mi">1500</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gamma</span> <span class="o">=</span> <span class="mf">0.9</span>
+            
+        <span class="c"># innercut and outercut determine where to apply a hard cut to the</span>
+        <span class="c"># surface density (if anywhere).  for example, to set sigma=0 for</span>
+        <span class="c"># R &gt; 2 au, do: outercut = SimArray(2,&#39;au&#39;)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">innercut</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outercut</span> <span class="o">=</span> <span class="bp">None</span>
+            
+    <span class="k">def</span> <span class="nf">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Override the default __setattr__ so that changing self.kind causes</span>
+<span class="sd">        the defaults to be set for that kind</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        
+        <span class="k">if</span> <span class="n">attr</span> <span class="o">==</span> <span class="s">&#39;kind&#39;</span><span class="p">:</span>
+            
+            <span class="bp">self</span><span class="o">.</span><span class="n">_set_defaults</span><span class="p">()</span>
+            
+        
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        
+        <span class="n">print_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;Sigma profile parameters:&#39;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="rho_calc"><a class="viewcode-back" href="../../../diskpy.ICgen.html#diskpy.ICgen.ICgen_settings.rho_calc">[docs]</a><span class="k">class</span> <span class="nc">rho_calc</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Settings for calculating rho(z,r)</span>
+<span class="sd">    </span>
+<span class="sd">    To echo settings:</span>
+<span class="sd">        rho_calc()</span>
+<span class="sd">    To access settings:</span>
+<span class="sd">        rho_calc.settingname</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        
+
+        <span class="c"># The number of radial data points to calculate rho(z,r)</span>
+        <span class="c"># If None (default), reasonable r bins are automatically estimated</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nr</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="c"># The number of vertical points to calculate rho(z,r) at</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nz</span> <span class="o">=</span> <span class="mi">200</span>
+        <span class="c"># The maximum z (assumed to be au) to calculate rho(z,r) at.</span>
+        <span class="c"># If None (default, safe) zmax is automatically estimated at each rbin</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zmax</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="c"># Minimum number of rbins to use</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_r_bins</span> <span class="o">=</span> <span class="mi">150</span>
+        <span class="c"># Accuracy requirement for r bins</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">r_bin_tol</span> <span class="o">=</span> <span class="mf">1e-3</span>
+        
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        
+        <span class="n">print_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;Rho calculation settings:&#39;</span><span class="p">)</span>
+        </div>
+<div class="viewcode-block" id="pos_gen"><a class="viewcode-back" href="../../../diskpy.ICgen.html#diskpy.ICgen.ICgen_settings.pos_gen">[docs]</a><span class="k">class</span> <span class="nc">pos_gen</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Settings for generating random positions [STEP 2]</span>
+<span class="sd">    </span>
+<span class="sd">    To echo settings:</span>
+<span class="sd">        pos_gen()</span>
+<span class="sd">    To access settings:</span>
+<span class="sd">        pos_gen.settingname</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        
+        <span class="c"># Number of random positions to generate:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nParticles</span> <span class="o">=</span> <span class="mi">40411</span>
+        <span class="c"># The method for generating positions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="s">&#39;grid&#39;</span>
+        
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        
+        <span class="n">print_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;Position generator settings:&#39;</span><span class="p">)</span>
+        </div>
+<div class="viewcode-block" id="snapshot"><a class="viewcode-back" href="../../../diskpy.ICgen.html#diskpy.ICgen.ICgen_settings.snapshot">[docs]</a><span class="k">class</span> <span class="nc">snapshot</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Settings for generating tipsy files (includes particle mass, temp, and vel.)</span>
+<span class="sd">    [STEP 3]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nParticles</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        
+        <span class="c"># Factor by which to scale the disc mass before time evolving it up to</span>
+        <span class="c"># a final mass of Mdisc (see above).  Should be between 0 and 1</span>
+        <span class="c"># Default: 1.0 (no scaling done).  Final particle masses are scaled</span>
+        <span class="c"># by this factor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mScale</span> <span class="o">=</span> <span class="mf">1.0</span>
+        
+        <span class="c"># Other defaults that shouldn&#39;t need to be changed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metals</span> <span class="o">=</span> <span class="mf">1.0</span>
+        
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        
+        <span class="n">print_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;Tipsy snapshot generator settings:&#39;</span><span class="p">)</span>
+                </div>
+<div class="viewcode-block" id="changa_run"><a class="viewcode-back" href="../../../diskpy.ICgen.html#diskpy.ICgen.ICgen_settings.changa_run">[docs]</a><span class="k">class</span> <span class="nc">changa_run</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Settings for running ChaNGa (needed when calculating velocities, eps, so on)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">preset</span> <span class="o">=</span> <span class="s">&#39;local&#39;</span><span class="p">):</span>
+        
+        <span class="c"># Run configuration to use.  See ICgen_utils.changa_command for options</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">preset</span> <span class="o">=</span> <span class="n">preset</span>
+        <span class="c"># Additional arguments for all ChaNGa calls</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">changa_args</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+        <span class="c"># Additional arguments for all runner (mpirun, charmrun, ...) calls</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">runner_args</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+        <span class="c"># Display ChaNGa output</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="c"># Save to log file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logfile_name</span> <span class="o">=</span> <span class="bp">None</span>
+        
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        
+        <span class="n">print_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;ChaNGa run options:&#39;</span><span class="p">)</span>
+        </div>
+<div class="viewcode-block" id="settings"><a class="viewcode-back" href="../../../diskpy.ICgen.html#diskpy.ICgen.ICgen_settings.settings">[docs]</a><span class="k">class</span> <span class="nc">settings</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    settings for ICgen</span>
+<span class="sd">    </span>
+<span class="sd">    USAGE:</span>
+<span class="sd">    </span>
+<span class="sd">    Load settings from file:</span>
+<span class="sd">        </span>
+<span class="sd">        import ICgen_settings</span>
+<span class="sd">        settings = ICgen_settings.settings(&#39;filename&#39;)</span>
+<span class="sd">        </span>
+<span class="sd">    Load settings from defaults (Defined in ICgen_settings.py):</span>
+<span class="sd">    </span>
+<span class="sd">        import ICgen_settings</span>
+<span class="sd">        settings = ICgen_settings.settings()</span>
+<span class="sd">        </span>
+<span class="sd">    Load settings for a given surface density profile</span>
+<span class="sd">    </span>
+<span class="sd">        import ICgen_settings</span>
+<span class="sd">        settings = ICgen_settings.settings(&#39;powerlaw&#39;)</span>
+<span class="sd">        or try:</span>
+<span class="sd">        settings = ICgen_settings.settings(&#39;MQWS&#39;)</span>
+<span class="sd">    </span>
+<span class="sd">    AFTER LOADING:    </span>
+<span class="sd">    Access settings:</span>
+<span class="sd">    </span>
+<span class="sd">        # Return sigmaFileName:</span>
+<span class="sd">        settings.filenames.sigmaFileName</span>
+<span class="sd">        </span>
+<span class="sd">        # Return number of particles:</span>
+<span class="sd">        settings.pos_gen.nParticles</span>
+<span class="sd">        </span>
+<span class="sd">        # Etc...</span>
+<span class="sd">        </span>
+<span class="sd">    Echo settings:</span>
+<span class="sd">    </span>
+<span class="sd">        # Echo ALL settings</span>
+<span class="sd">        settings()</span>
+<span class="sd">        </span>
+<span class="sd">        # Echo filenames</span>
+<span class="sd">        settings.filenames()</span>
+<span class="sd">        </span>
+<span class="sd">        # Etc...</span>
+<span class="sd">        </span>
+<span class="sd">    READ/WRITE</span>
+<span class="sd">    </span>
+<span class="sd">    Write (save) settings to disk:</span>
+<span class="sd">    </span>
+<span class="sd">        settings.write(&#39;filename&#39;)</span>
+<span class="sd">        </span>
+<span class="sd">    Load (read) settings from disk:</span>
+<span class="sd">    </span>
+<span class="sd">        settings.load(&#39;filename&#39;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>    
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">settings_filename</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">__version__</span> <span class="o">=</span> <span class="n">__iversion__</span>
+        
+        <span class="k">if</span> <span class="n">settings_filename</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="c"># Load the defaults</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">filenames</span> <span class="o">=</span> <span class="n">filenames</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sigma</span> <span class="o">=</span> <span class="n">sigma</span><span class="p">(</span><span class="n">kind</span><span class="p">)</span>           
+            <span class="bp">self</span><span class="o">.</span><span class="n">rho_calc</span> <span class="o">=</span> <span class="n">rho_calc</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pos_gen</span> <span class="o">=</span> <span class="n">pos_gen</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">snapshot</span> <span class="o">=</span> <span class="n">snapshot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pos_gen</span><span class="o">.</span><span class="n">nParticles</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">physical</span> <span class="o">=</span> <span class="n">physical</span><span class="p">(</span><span class="n">kind</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">changa_run</span> <span class="o">=</span> <span class="n">changa_run</span><span class="p">()</span>
+            
+        <span class="k">else</span><span class="p">:</span>
+            
+            <span class="bp">self</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">settings_filename</span><span class="p">)</span>
+        
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">filenames</span><span class="p">()</span>
+        <span class="k">print</span> <span class="s">&#39;&#39;</span>
+        <span class="c"># Check if sigma is a setting (needed for compatibility)</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s">&#39;sigma&#39;</span><span class="p">):</span>
+            
+            <span class="bp">self</span><span class="o">.</span><span class="n">sigma</span><span class="p">()</span>
+            <span class="k">print</span> <span class="s">&#39;&#39;</span>
+            
+        <span class="bp">self</span><span class="o">.</span><span class="n">rho_calc</span><span class="p">()</span>
+        <span class="k">print</span> <span class="s">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pos_gen</span><span class="p">()</span>
+        <span class="k">print</span> <span class="s">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">snapshot</span><span class="p">()</span>
+        <span class="k">print</span> <span class="s">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">physical</span><span class="p">()</span>
+        <span class="k">print</span> <span class="s">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">changa_run</span><span class="p">()</span>
+        
+<div class="viewcode-block" id="settings.save"><a class="viewcode-back" href="../../../diskpy.ICgen.html#diskpy.ICgen.ICgen_settings.settings.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">settings_filename</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Save settings to settings_filename.  If settings_filename is None</span>
+<span class="sd">        (or is not set), settings_filename will be taken as the filename of</span>
+<span class="sd">        the most recent save/load</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="k">if</span> <span class="n">settings_filename</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="c"># Try filename stored in settings object (self)            </span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s">&#39;settings_filename&#39;</span><span class="p">):</span>
+                
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">,</span><span class="s">&#39;No settings_filename defined.  Cannot save&#39;</span>
+                
+            <span class="k">else</span><span class="p">:</span>
+                
+                <span class="n">settings_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings_filename</span>
+                
+        <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">settings_filename</span><span class="p">,</span><span class="s">&#39;wb&#39;</span><span class="p">)</span>
+        <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="p">,</span><span class="n">f</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">print</span> <span class="s">&#39;Settings saved to {0}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">settings_filename</span><span class="p">)</span>
+        <span class="c"># Update the settings_filename</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">settings_filename</span> <span class="o">=</span> <span class="n">settings_filename</span>
+        </div>
+<div class="viewcode-block" id="settings.load"><a class="viewcode-back" href="../../../diskpy.ICgen.html#diskpy.ICgen.ICgen_settings.settings.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">settings_filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load settings from settings_filename.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">settings_filename</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="c"># Load the settings</span>
+            <span class="n">tmp_dict</span> <span class="o">=</span> <span class="n">pickle_import</span><span class="p">(</span><span class="n">settings_filename</span><span class="p">,</span> <span class="n">_dir</span><span class="p">)</span>
+            
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c"># Assume the an already loaded settings dictionary is being passed</span>
+            <span class="n">tmp_dict</span> <span class="o">=</span> <span class="n">settings_filename</span>
+        
+        <span class="c"># Sigma has to be handled specially because the settings are dynamic</span>
+        <span class="k">if</span> <span class="s">&#39;sigma&#39;</span> <span class="ow">in</span> <span class="n">tmp_dict</span><span class="p">:</span>
+            
+            <span class="bp">self</span><span class="o">.</span><span class="n">sigma</span><span class="o">.</span><span class="n">kind</span> <span class="o">=</span> <span class="n">tmp_dict</span><span class="p">[</span><span class="s">&#39;sigma&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">kind</span>
+        
+        <span class="c"># Get the names of the settings objects</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="p">[]</span>
+        
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            
+            <span class="k">if</span> <span class="n">key</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s">&#39;_&#39;</span><span class="p">:</span>
+                
+                <span class="n">keys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+                
+        <span class="c"># Now update the dictionary with the settings object dictionaries</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+            
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">tmp_dict</span><span class="p">:</span>
+                
+                <span class="n">old</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+                <span class="n">new</span> <span class="o">=</span> <span class="n">tmp_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+                <span class="c"># Update the old (possibly default) settings</span>
+                <span class="n">old</span><span class="o">.</span><span class="n">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">new</span><span class="o">.</span><span class="n">__dict__</span><span class="p">)</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">old</span><span class="p">)</span>
+                
+        </div></div>
+<div class="viewcode-block" id="print_settings"><a class="viewcode-back" href="../../../diskpy.ICgen.html#diskpy.ICgen.ICgen_settings.print_settings">[docs]</a><span class="k">def</span> <span class="nf">print_settings</span><span class="p">(</span><span class="n">setting</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    
+    <span class="k">print</span> <span class="s">&#39;------------------------&#39;</span>
+    <span class="k">print</span> <span class="n">header</span>
+    <span class="k">print</span> <span class="s">&#39;&#39;</span>
+    
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span><span class="n">val</span> <span class="ow">in</span> <span class="n">setting</span><span class="o">.</span><span class="n">__dict__</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            
+            <span class="k">if</span> <span class="n">pynbody</span><span class="o">.</span><span class="n">units</span><span class="o">.</span><span class="n">has_units</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
+                <span class="k">print</span> <span class="s">&#39;{0} : {1} {2}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">,</span><span class="n">val</span><span class="p">,</span><span class="n">val</span><span class="o">.</span><span class="n">units</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">print</span> <span class="s">&#39;{0} : {1}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">,</span><span class="n">val</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">diskpy  documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Isaac Backus.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

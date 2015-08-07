@@ -25,6 +25,14 @@ diskpy.docconf module
     :undoc-members:
     :show-inheritance:
 
+diskpy.global_settings module
+-----------------------------
+
+.. automodule:: diskpy.global_settings
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 Module contents
 ---------------

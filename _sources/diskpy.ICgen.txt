@@ -43,14 +43,6 @@ diskpy.ICgen.ICgen_utils module
     :undoc-members:
     :show-inheritance:
 
-diskpy.ICgen.ICglobal_settings module
--------------------------------------
-
-.. automodule:: diskpy.ICgen.ICglobal_settings
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 diskpy.ICgen.binary module
 --------------------------
 
