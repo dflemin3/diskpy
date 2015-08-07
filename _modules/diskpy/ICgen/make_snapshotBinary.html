@@ -66,13 +66,14 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">import</span> <span class="nn">gc</span>
-<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">AddBinary</span>
-<span class="kn">import</span> <span class="nn">isaac</span>
 <span class="kn">import</span> <span class="nn">calc_velocity</span>
 <span class="kn">import</span> <span class="nn">ICgen_utils</span>
+<span class="kn">import</span> <span class="nn">ICglobal_settings</span>
+<span class="n">global_settings</span> <span class="o">=</span> <span class="n">ICglobal_settings</span><span class="o">.</span><span class="n">global_settings</span>
 
-<span class="kn">from</span> <span class="nn">diskpy</span> <span class="kn">import</span> <span class="n">global_settings</span>
+<span class="kn">from</span> <span class="nn">diskpy.utils</span> <span class="kn">import</span> <span class="n">match_units</span><span class="p">,</span> <span class="n">strip_units</span><span class="p">,</span> <span class="n">configsave</span>
+<span class="kn">from</span> <span class="nn">diskpy.pychanga</span> <span class="kn">import</span> <span class="n">make_param</span><span class="p">,</span> <span class="n">make_director</span>
 
 <div class="viewcode-block" id="snapshot_gen"><a class="viewcode-back" href="../../../diskpy.ICgen.html#diskpy.ICgen.make_snapshotBinary.snapshot_gen">[docs]</a><span class="k">def</span> <span class="nf">snapshot_gen</span><span class="p">(</span><span class="n">ICobj</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -115,7 +116,7 @@
     
     <span class="c"># disk mass</span>
     <span class="n">m_disk</span> <span class="o">=</span> <span class="n">ICobj</span><span class="o">.</span><span class="n">sigma</span><span class="o">.</span><span class="n">m_disk</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-    <span class="n">m_disk</span> <span class="o">=</span> <span class="n">isaac</span><span class="o">.</span><span class="n">match_units</span><span class="p">(</span><span class="n">m_disk</span><span class="p">,</span> <span class="n">m_star</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">m_disk</span> <span class="o">=</span> <span class="n">match_units</span><span class="p">(</span><span class="n">m_disk</span><span class="p">,</span> <span class="n">m_star</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
     
     <span class="c"># mass of the gas particles</span>
     <span class="n">m_particles</span> <span class="o">=</span> <span class="n">m_disk</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">nParticles</span><span class="p">)</span>
@@ -171,7 +172,7 @@
     <span class="c">#snapshot.star[&#39;eps&#39;] = r.min()</span>
     
     <span class="c"># Make param file</span>
-    <span class="n">param</span> <span class="o">=</span> <span class="n">isaac</span><span class="o">.</span><span class="n">make_param</span><span class="p">(</span><span class="n">snapshot</span><span class="p">,</span> <span class="n">snapshotName</span><span class="p">)</span>
+    <span class="n">param</span> <span class="o">=</span> <span class="n">make_param</span><span class="p">(</span><span class="n">snapshot</span><span class="p">,</span> <span class="n">snapshotName</span><span class="p">)</span>
     <span class="n">param</span><span class="p">[</span><span class="s">&#39;dMeanMolWeight&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">m</span>
        
     <span class="n">gc</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
@@ -189,7 +190,7 @@
     <span class="c"># Estimate time step for changa to use</span>
     <span class="c"># -------------------------------------------------</span>
     <span class="c"># Save param file</span>
-    <span class="n">isaac</span><span class="o">.</span><span class="n">configsave</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">paramName</span><span class="p">,</span> <span class="s">&#39;param&#39;</span><span class="p">)</span>
+    <span class="n">configsave</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">paramName</span><span class="p">,</span> <span class="s">&#39;param&#39;</span><span class="p">)</span>
     <span class="c"># Save snapshot</span>
     <span class="n">snapshot</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">snapshotName</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">pynbody</span><span class="o">.</span><span class="n">tipsy</span><span class="o">.</span><span class="n">TipsySnap</span><span class="p">)</span>
     <span class="c"># est dDelta</span>
@@ -206,9 +207,9 @@
     <span class="c"># surface density at largest radius</span>
     <span class="n">sigma_max</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">ICobj</span><span class="o">.</span><span class="n">sigma</span><span class="o">.</span><span class="n">input_dict</span><span class="p">[</span><span class="s">&#39;sigma&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
     <span class="c"># Create director dict</span>
-    <span class="n">director</span> <span class="o">=</span> <span class="n">isaac</span><span class="o">.</span><span class="n">make_director</span><span class="p">(</span><span class="n">sigma_min</span><span class="p">,</span> <span class="n">sigma_max</span><span class="p">,</span> <span class="n">r_director</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">param</span><span class="p">[</span><span class="s">&#39;achOutName&#39;</span><span class="p">])</span>
+    <span class="n">director</span> <span class="o">=</span> <span class="n">make_director</span><span class="p">(</span><span class="n">sigma_min</span><span class="p">,</span> <span class="n">sigma_max</span><span class="p">,</span> <span class="n">r_director</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">param</span><span class="p">[</span><span class="s">&#39;achOutName&#39;</span><span class="p">])</span>
     <span class="c">## Save .director file</span>
-    <span class="c">#isaac.configsave(director, directorName, &#39;director&#39;)</span>
+    <span class="c">#configsave(director, directorName, &#39;director&#39;)</span>
 
     <span class="c">#Now that velocities and everything are all initialized for gas particles, create new snapshot to return in which</span>
     <span class="c">#single star particle is replaced by 2, same units as above</span>
@@ -258,7 +259,7 @@
     <span class="n">snapshotBinary</span><span class="o">.</span><span class="n">star</span><span class="p">[</span><span class="s">&#39;metals&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">SimArray</span><span class="p">(</span><span class="n">star_metals</span><span class="p">)</span>
 
     <span class="c">#Estimate stars&#39; softening length as fraction of distance to COM</span>
-    <span class="n">d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">x1</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">x2</span><span class="p">)</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">AddBinary</span><span class="o">.</span><span class="n">dotProduct</span><span class="p">(</span><span class="n">x1</span><span class="o">-</span><span class="n">x2</span><span class="p">,</span><span class="n">x1</span><span class="o">-</span><span class="n">x2</span><span class="p">))</span>
 
     <span class="n">snapshotBinary</span><span class="o">.</span><span class="n">star</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s">&#39;eps&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">SimArray</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">fabs</span><span class="p">(</span><span class="n">d</span><span class="p">)</span><span class="o">/</span><span class="mf">4.0</span><span class="p">,</span><span class="n">pos_unit</span><span class="p">)</span>
     <span class="n">snapshotBinary</span><span class="o">.</span><span class="n">star</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s">&#39;eps&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">SimArray</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">fabs</span><span class="p">(</span><span class="n">d</span><span class="p">)</span><span class="o">/</span><span class="mf">4.0</span><span class="p">,</span><span class="n">pos_unit</span><span class="p">)</span>
@@ -271,48 +272,16 @@
     <span class="c">#Set Sink Radius to be mass-weighted average of Roche lobes of two stars</span>
     <span class="n">r1</span> <span class="o">=</span> <span class="n">AddBinary</span><span class="o">.</span><span class="n">calcRocheLobe</span><span class="p">(</span><span class="n">binsys</span><span class="o">.</span><span class="n">m1</span><span class="o">/</span><span class="n">binsys</span><span class="o">.</span><span class="n">m2</span><span class="p">,</span><span class="n">binsys</span><span class="o">.</span><span class="n">a</span><span class="p">)</span> 
     <span class="n">r2</span> <span class="o">=</span> <span class="n">AddBinary</span><span class="o">.</span><span class="n">calcRocheLobe</span><span class="p">(</span><span class="n">binsys</span><span class="o">.</span><span class="n">m2</span><span class="o">/</span><span class="n">binsys</span><span class="o">.</span><span class="n">m1</span><span class="p">,</span><span class="n">binsys</span><span class="o">.</span><span class="n">a</span><span class="p">)</span>
-    <span class="n">p</span> <span class="o">=</span> <span class="n">isaac</span><span class="o">.</span><span class="n">strip_units</span><span class="p">(</span><span class="n">binsys</span><span class="o">.</span><span class="n">m1</span><span class="o">/</span><span class="p">(</span><span class="n">binsys</span><span class="o">.</span><span class="n">m1</span> <span class="o">+</span> <span class="n">binsys</span><span class="o">.</span><span class="n">m2</span><span class="p">))</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">strip_units</span><span class="p">(</span><span class="n">binsys</span><span class="o">.</span><span class="n">m1</span><span class="o">/</span><span class="p">(</span><span class="n">binsys</span><span class="o">.</span><span class="n">m1</span> <span class="o">+</span> <span class="n">binsys</span><span class="o">.</span><span class="n">m2</span><span class="p">))</span>
 
     <span class="n">r_sink</span> <span class="o">=</span> <span class="p">(</span><span class="n">r1</span><span class="o">*</span><span class="n">p</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">r2</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">p</span><span class="p">))</span>
     <span class="n">param</span><span class="p">[</span><span class="s">&#39;dSinkBoundOrbitRadius&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">r_sink</span>
     <span class="n">param</span><span class="p">[</span><span class="s">&#39;dSinkRadius&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">r_sink</span>
-    <span class="n">param</span><span class="p">[</span><span class="s">&#39;dSinkMassMin&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.9</span> <span class="o">*</span> <span class="n">isaac</span><span class="o">.</span><span class="n">strip_units</span><span class="p">(</span><span class="n">secMass</span><span class="p">)</span>
+    <span class="n">param</span><span class="p">[</span><span class="s">&#39;dSinkMassMin&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.9</span> <span class="o">*</span> <span class="n">strip_units</span><span class="p">(</span><span class="n">secMass</span><span class="p">)</span>
     <span class="n">param</span><span class="p">[</span><span class="s">&#39;bDoSinks&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
     
     <span class="k">return</span> <span class="n">snapshotBinary</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="n">director</span>
-    </div>
-<div class="viewcode-block" id="make_director"><a class="viewcode-back" href="../../../diskpy.ICgen.html#diskpy.ICgen.make_snapshotBinary.make_director">[docs]</a><span class="k">def</span> <span class="nf">make_director</span><span class="p">(</span><span class="n">ICobj</span><span class="p">,</span> <span class="n">res</span><span class="o">=</span><span class="mi">1200</span><span class="p">):</span>
     
-    <span class="n">director</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="n">director</span><span class="p">[</span><span class="s">&#39;render&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;tsc&#39;</span>
-    <span class="n">director</span><span class="p">[</span><span class="s">&#39;FOV&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">45.0</span>
-    <span class="n">director</span><span class="p">[</span><span class="s">&#39;clip&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0001</span><span class="p">,</span> <span class="mi">500</span><span class="p">]</span>
-    <span class="n">director</span><span class="p">[</span><span class="s">&#39;up&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
-    <span class="n">director</span><span class="p">[</span><span class="s">&#39;project&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;ortho&#39;</span>
-    <span class="n">director</span><span class="p">[</span><span class="s">&#39;softgassph&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;softgassph&#39;</span>
-    <span class="n">director</span><span class="p">[</span><span class="s">&#39;physical&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;physical&#39;</span>
-    <span class="n">director</span><span class="p">[</span><span class="s">&#39;size&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">res</span><span class="p">,</span> <span class="n">res</span><span class="p">]</span>
-    
-    <span class="n">sig_set</span> <span class="o">=</span> <span class="n">ICobj</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">sigma</span>
-    <span class="n">mScale</span> <span class="o">=</span> <span class="n">ICobj</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">snapshot</span><span class="o">.</span><span class="n">mScale</span>
-    <span class="n">snapshot_name</span> <span class="o">=</span> <span class="n">ICobj</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">filenames</span><span class="o">.</span><span class="n">snapshotName</span>
-    <span class="n">f_prefix</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">snapshot_name</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
-    
-    <span class="n">director</span><span class="p">[</span><span class="s">&#39;file&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">f_prefix</span>
-    
-    
-    <span class="k">if</span> <span class="n">sig_set</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s">&#39;MQWS&#39;</span><span class="p">:</span>
-        
-        <span class="n">rmax</span> <span class="o">=</span> <span class="n">sig_set</span><span class="o">.</span><span class="n">rout</span> <span class="o">+</span> <span class="mi">3</span><span class="o">*</span><span class="n">sig_set</span><span class="o">.</span><span class="n">rin</span>
-        <span class="n">zmax</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">rmax</span><span class="p">)</span>
-        <span class="n">director</span><span class="p">[</span><span class="s">&#39;eye&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">zmax</span><span class="p">]</span>
-        <span class="n">vmin</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">ICobj</span><span class="o">.</span><span class="n">rho</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">rmax</span><span class="p">))</span>
-        <span class="n">vmax</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">ICobj</span><span class="o">.</span><span class="n">rho</span><span class="o">.</span><span class="n">rho_binned</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
-        <span class="n">vmax</span> <span class="o">*=</span> <span class="n">mScale</span>
-        <span class="n">director</span><span class="p">[</span><span class="s">&#39;logscale&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">vmin</span><span class="p">,</span> <span class="mi">10</span><span class="o">*</span><span class="n">vmax</span><span class="p">]</span>
-        <span class="n">director</span><span class="p">[</span><span class="s">&#39;colgas&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
-        
-    <span class="k">return</span> <span class="n">director</span>
         </div>
 </pre></div>
 

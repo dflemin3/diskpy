@@ -65,7 +65,6 @@
 <span class="n">SimArray</span> <span class="o">=</span> <span class="n">pynbody</span><span class="o">.</span><span class="n">array</span><span class="o">.</span><span class="n">SimArray</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">cPickle</span> <span class="kn">as</span> <span class="nn">pickle</span>
 <span class="kn">from</span> <span class="nn">warnings</span> <span class="kn">import</span> <span class="n">warn</span>
 
@@ -75,6 +74,7 @@
 <span class="kn">import</span> <span class="nn">make_snapshot</span>
 <span class="kn">import</span> <span class="nn">make_snapshotBinary</span>
 <span class="kn">import</span> <span class="nn">make_snapshotSType</span>
+<span class="kn">import</span> <span class="nn">make_snapshotSTypeSupplied</span>
 <span class="kn">import</span> <span class="nn">ICgen_settings</span>
 <span class="kn">import</span> <span class="nn">ICgen_utils</span>
 <span class="kn">import</span> <span class="nn">make_sigma</span>
@@ -597,16 +597,33 @@
 <span class="sd">        Uses make_snapshot.py</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         
-        <span class="c"># Generate snapshot for either a single star or binary depending on IC.settings.physical.starMode</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">physical</span><span class="o">.</span><span class="n">starMode</span> <span class="o">==</span> <span class="s">&quot;single&quot;</span><span class="p">:</span>							
-            <span class="n">snapshot</span><span class="p">,</span> <span class="n">snapshot_param</span><span class="p">,</span> <span class="n">snapshot_director</span> <span class="o">=</span> <span class="n">make_snapshot</span><span class="o">.</span><span class="n">snapshot_gen</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="p">)</span>
+        <span class="c"># Generate snapshot for either a single star or binary depending on </span>
+        <span class="c"># IC.settings.physical.starMode</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">physical</span><span class="o">.</span><span class="n">starMode</span> <span class="o">==</span> <span class="s">&quot;single&quot;</span><span class="p">:</span>		
+            
+            <span class="n">snapshot</span><span class="p">,</span> <span class="n">snapshot_param</span><span class="p">,</span> <span class="n">snapshot_director</span> <span class="o">=</span> \
+            <span class="n">make_snapshot</span><span class="o">.</span><span class="n">snapshot_gen</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="p">)</span>
+            
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">physical</span><span class="o">.</span><span class="n">starMode</span> <span class="o">==</span> <span class="s">&quot;binary&quot;</span><span class="p">:</span>
-            <span class="n">snapshot</span><span class="p">,</span> <span class="n">snapshot_param</span><span class="p">,</span> <span class="n">snapshot_director</span> <span class="o">=</span> <span class="n">make_snapshotBinary</span><span class="o">.</span><span class="n">snapshot_gen</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="p">)</span>
+            
+            <span class="n">snapshot</span><span class="p">,</span> <span class="n">snapshot_param</span><span class="p">,</span> <span class="n">snapshot_director</span> <span class="o">=</span> \
+            <span class="n">make_snapshotBinary</span><span class="o">.</span><span class="n">snapshot_gen</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="p">)</span>
+            
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">physical</span><span class="o">.</span><span class="n">starMode</span> <span class="o">==</span> <span class="s">&quot;stype&quot;</span><span class="p">:</span>
-            <span class="n">snapshot</span><span class="p">,</span> <span class="n">snapshot_param</span><span class="p">,</span> <span class="n">snapshot_director</span> <span class="o">=</span> <span class="n">make_snapshotSType</span><span class="o">.</span><span class="n">snapshot_gen</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="p">)</span>
+            
+            <span class="n">snapshot</span><span class="p">,</span> <span class="n">snapshot_param</span><span class="p">,</span> <span class="n">snapshot_director</span> <span class="o">=</span> \
+            <span class="n">make_snapshotSType</span><span class="o">.</span><span class="n">snapshot_gen</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="p">)</span>
+            
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">physical</span><span class="o">.</span><span class="n">starMode</span> <span class="o">==</span> <span class="s">&quot;stypeSupplied&quot;</span><span class="p">:</span>
+            
+            <span class="n">snapshot</span><span class="p">,</span> <span class="n">snapshot_param</span><span class="p">,</span> <span class="n">snapshot_director</span> <span class="o">=</span> \
+            <span class="n">make_snapshotSTypeSupplied</span><span class="o">.</span><span class="n">snapshot_gen</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="p">)</span>
+            
         <span class="k">else</span><span class="p">:</span>
+            
             <span class="k">print</span> <span class="s">&quot;Invalid starMode given in ICobj.  Assuming default single star.&quot;</span>
-            <span class="n">snapshot</span><span class="p">,</span> <span class="n">snapshot_param</span><span class="p">,</span> <span class="n">snapshot_director</span> <span class="o">=</span> <span class="n">make_snapshot</span><span class="o">.</span><span class="n">snapshot_gen</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="p">)</span>
+            <span class="n">snapshot</span><span class="p">,</span> <span class="n">snapshot_param</span><span class="p">,</span> <span class="n">snapshot_director</span> <span class="o">=</span> \
+            <span class="n">make_snapshot</span><span class="o">.</span><span class="n">snapshot_gen</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="p">)</span>
             
         <span class="c"># Save to ICobj</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">snapshot</span> <span class="o">=</span> <span class="n">snapshot</span>

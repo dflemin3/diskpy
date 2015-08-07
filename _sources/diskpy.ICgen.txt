@@ -115,6 +115,14 @@ diskpy.ICgen.make_snapshotSType module
     :undoc-members:
     :show-inheritance:
 
+diskpy.ICgen.make_snapshotSTypeSupplied module
+----------------------------------------------
+
+.. automodule:: diskpy.ICgen.make_snapshotSTypeSupplied
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 diskpy.ICgen.pos_class module
 -----------------------------
 
@@ -135,6 +143,14 @@ diskpy.ICgen.sigma_profile module
 ---------------------------------
 
 .. automodule:: diskpy.ICgen.sigma_profile
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+diskpy.ICgen.test module
+------------------------
+
+.. automodule:: diskpy.ICgen.test
     :members:
     :undoc-members:
     :show-inheritance:

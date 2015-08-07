@@ -58,8 +58,8 @@
 
 <span class="c"># Import my binary star module that continue relevant routines</span>
 <span class="kn">import</span> <span class="nn">AddBinary</span>
-<span class="kn">import</span> <span class="nn">isaac</span>
-
+<span class="kn">import</span> <span class="nn">pynbody</span>
+<span class="n">SimArray</span> <span class="o">=</span> <span class="n">pynbody</span><span class="o">.</span><span class="n">array</span><span class="o">.</span><span class="n">SimArray</span>
 
 <div class="viewcode-block" id="Binary"><a class="viewcode-back" href="../../../diskpy.ICgen.html#diskpy.ICgen.binary.Binary">[docs]</a><span class="k">class</span> <span class="nc">Binary</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 
@@ -94,7 +94,6 @@
             <span class="k">assert</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span>
                 <span class="n">X</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">),</span> <span class="s">&quot;Improper input. len(Input Array) != 2. len = </span><span class="si">%d</span><span class="s">.  State should be cartesian.&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">state</span>
-
             <span class="bp">self</span><span class="o">.</span><span class="n">r</span> <span class="o">=</span> <span class="n">X</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">v</span> <span class="o">=</span> <span class="n">X</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">m1</span> <span class="o">=</span> <span class="n">m1</span>
@@ -107,7 +106,6 @@
             <span class="k">assert</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span>
                 <span class="n">X</span><span class="p">)</span> <span class="o">==</span> <span class="mi">6</span><span class="p">),</span> <span class="s">&quot;Improper input. len(Input Array) != 6. len = </span><span class="si">%d</span><span class="s">.  State should be kepler&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">state</span>
-
             <span class="bp">self</span><span class="o">.</span><span class="n">assignOrbElems</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">m1</span> <span class="o">=</span> <span class="n">m1</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">m2</span> <span class="o">=</span> <span class="n">m2</span>
@@ -121,12 +119,12 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">state</span>
 
             <span class="c"># Extract data from snapshot</span>
-            <span class="n">x1</span> <span class="o">=</span> <span class="n">isaac</span><span class="o">.</span><span class="n">strip_units</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">stars</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s">&#39;pos&#39;</span><span class="p">])</span>
-            <span class="n">x2</span> <span class="o">=</span> <span class="n">isaac</span><span class="o">.</span><span class="n">strip_units</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">stars</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s">&#39;pos&#39;</span><span class="p">])</span>
-            <span class="n">v1</span> <span class="o">=</span> <span class="n">isaac</span><span class="o">.</span><span class="n">strip_units</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">stars</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s">&#39;vel&#39;</span><span class="p">])</span>
-            <span class="n">v2</span> <span class="o">=</span> <span class="n">isaac</span><span class="o">.</span><span class="n">strip_units</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">stars</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s">&#39;vel&#39;</span><span class="p">])</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">m1</span> <span class="o">=</span> <span class="n">isaac</span><span class="o">.</span><span class="n">strip_units</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">stars</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s">&#39;mass&#39;</span><span class="p">])</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">m2</span> <span class="o">=</span> <span class="n">isaac</span><span class="o">.</span><span class="n">strip_units</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">stars</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s">&#39;mass&#39;</span><span class="p">])</span>
+            <span class="n">x1</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">stars</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s">&#39;pos&#39;</span><span class="p">]</span>
+            <span class="n">x2</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">stars</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s">&#39;pos&#39;</span><span class="p">]</span>
+            <span class="n">v1</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">stars</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s">&#39;vel&#39;</span><span class="p">]</span>
+            <span class="n">v2</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">stars</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s">&#39;vel&#39;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">m1</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">stars</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s">&#39;mass&#39;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">m2</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">stars</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s">&#39;mass&#39;</span><span class="p">]</span>
 
             <span class="c"># Compute position, velocity in center of mass frame then orbital</span>
             <span class="c"># elements</span>
@@ -153,7 +151,7 @@
 
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        When invoked, return the orbital elements.</span>
+<span class="sd">        Return the orbital elements and the masses of the primary and secondary.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="s">&quot;(</span><span class="si">%s</span><span class="s">,</span><span class="si">%s</span><span class="s">,</span><span class="si">%s</span><span class="s">,</span><span class="si">%s</span><span class="s">,</span><span class="si">%s</span><span class="s">,</span><span class="si">%s</span><span class="s">), mass: (</span><span class="si">%s</span><span class="s">,</span><span class="si">%s</span><span class="s">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">e</span><span class="p">,</span>
                                                        <span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">,</span>
@@ -180,7 +178,6 @@
 <span class="sd">        Output:</span>
 <span class="sd">        None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c"># Only assign data if it doesn&#39;t exist</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">e</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">a</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">i</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
@@ -196,8 +193,8 @@
 <span class="sd">        This is useful because sometimes they come in as a list, a (1,3) numpy array or a (3,) numpy array.</span>
 <span class="sd">        Much easier to clean up upon initialization then have many checks in later functions.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">r</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">r</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
 
     <span class="c"># end function</span>
 </div>
@@ -211,12 +208,15 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c"># Compute orbital elements from binary center of mass frame Cartesian</span>
         <span class="c"># coordinates</span>
-        <span class="n">zero</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="k">assert</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">!=</span> <span class="s">&#39;Kepler&#39;</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">!=</span> <span class="s">&#39;kepler&#39;</span><span class="p">),</span> <span class="s">&quot;Already have orbital elements.&quot;</span>        
+        
+        <span class="n">zeroR</span> <span class="o">=</span> <span class="n">SimArray</span><span class="p">([[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]],</span><span class="s">&#39;cm&#39;</span><span class="p">)</span>
+        <span class="n">zeroV</span> <span class="o">=</span> <span class="n">SimArray</span><span class="p">([[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]],</span><span class="s">&#39;cm s**-1&#39;</span><span class="p">)</span>
         <span class="n">oe</span> <span class="o">=</span> <span class="n">AddBinary</span><span class="o">.</span><span class="n">calcOrbitalElements</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">r</span><span class="p">,</span>
-            <span class="n">zero</span><span class="p">,</span>
+            <span class="n">zeroR</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="p">,</span>
-            <span class="n">zero</span><span class="p">,</span>
+            <span class="n">zeroV</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">m1</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">m2</span><span class="p">)</span>
 
@@ -231,7 +231,7 @@
 <span class="sd">        Compute the Cartesian position and velocity in the reduced mass frame.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">assert</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="s">&quot;Kepler&quot;</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span>
-                <span class="s">&quot;kepler&quot;</span><span class="p">),</span> <span class="s">&quot;Already have cartesian coords!&quot;</span>
+                <span class="s">&quot;kepler&quot;</span><span class="p">),</span> <span class="s">&quot;Already have cartesian coordinates.&quot;</span>
         <span class="n">M</span> <span class="o">=</span> <span class="n">AddBinary</span><span class="o">.</span><span class="n">trueToMean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nu</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">e</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">r</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">v</span> <span class="o">=</span> <span class="n">AddBinary</span><span class="o">.</span><span class="n">keplerToCartesian</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">e</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Omega</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">m1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">m2</span><span class="p">)</span>
