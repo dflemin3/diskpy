@@ -1,6 +1,13 @@
 diskpy.ICgen package
 ====================
 
+Subpackages
+-----------
+
+.. toctree::
+
+    diskpy.ICgen.sigprofiles
+
 Submodules
 ----------
 
@@ -60,22 +67,6 @@ diskpy.ICgen.binaryUtils module
     :undoc-members:
     :show-inheritance:
 
-diskpy.ICgen.calc_rho module
-----------------------------
-
-.. automodule:: diskpy.ICgen.calc_rho
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-diskpy.ICgen.calc_rho_zr module
--------------------------------
-
-.. automodule:: diskpy.ICgen.calc_rho_zr
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 diskpy.ICgen.calc_temp module
 -----------------------------
 
@@ -92,42 +83,10 @@ diskpy.ICgen.calc_velocity module
     :undoc-members:
     :show-inheritance:
 
-diskpy.ICgen.calc_velocity_mpi module
--------------------------------------
-
-.. automodule:: diskpy.ICgen.calc_velocity_mpi
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-diskpy.ICgen.clear_star module
-------------------------------
-
-.. automodule:: diskpy.ICgen.clear_star
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-diskpy.ICgen.isaac module
--------------------------
-
-.. automodule:: diskpy.ICgen.isaac
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 diskpy.ICgen.kepler38 module
 ----------------------------
 
 .. automodule:: diskpy.ICgen.kepler38
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-diskpy.ICgen.load_hermite_spline module
----------------------------------------
-
-.. automodule:: diskpy.ICgen.load_hermite_spline
     :members:
     :undoc-members:
     :show-inheritance:
@@ -172,10 +131,26 @@ diskpy.ICgen.pos_class module
     :undoc-members:
     :show-inheritance:
 
+diskpy.ICgen.rhosolver module
+-----------------------------
+
+.. automodule:: diskpy.ICgen.rhosolver
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 diskpy.ICgen.sigma_profile module
 ---------------------------------
 
 .. automodule:: diskpy.ICgen.sigma_profile
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+diskpy.ICgen.vertical_solver module
+-----------------------------------
+
+.. automodule:: diskpy.ICgen.vertical_solver
     :members:
     :undoc-members:
     :show-inheritance:
