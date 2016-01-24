@@ -809,7 +809,7 @@ def calcStableSigma(r,rd,Mstar,Mdisk,Q):
     
     return sigma_0
     
-def orbElemsVsRadius(s,rBinEdges,average=False):
+def orbElemsVsRadius(s,rBinEdges,average=True):
     """
     Computes the orbital elements for disk particles about a binary system in given radial bins.
     Assumes center of mass has v ~ 0
@@ -832,7 +832,8 @@ def orbElemsVsRadius(s,rBinEdges,average=False):
     
     #Read snapshot and pull out values of interest
     stars = s.stars
-    gas = s.gas    
+    gas = s.gas
+    gas_rxy = gas['rxy'].in_units('au')
     M = np.sum(stars['mass'])
     zero = SimArray(np.zeros(3).reshape((1, 3)),'cm s**-1') 
     orbElems = np.zeros((6,len(rBinEdges)-1))    
@@ -843,10 +844,11 @@ def orbElemsVsRadius(s,rBinEdges,average=False):
     #Loop over radial bins calculating orbital elements
     for i in range(0,len(rBinEdges)-1):
         if average: #Average over all gas particles in subsection
-            rMask = np.logical_and(gas['rxy'].in_units('au') > rBinEdges[i], gas['rxy'].in_units('au') < rBinEdges[i+1])
+            #rMask = np.logical_and(gas['rxy'].in_units('au') > rBinEdges[i], gas['rxy'].in_units('au') < rBinEdges[i+1])
+            rMask = np.logical_and(gas_rxy > rBinEdges[i], gas_rxy < rBinEdges[i+1])            
             if i > 0:
                 #Include mass of disk interior to given radius
-                mass = M + np.sum(gas[gas['rxy'] < rBinEdges[i]]['mass'])
+                mass = M + np.sum(gas[gas_rxy < rBinEdges[i]]['mass'])
             else:
                 mass = M
             g = gas[rMask]
@@ -856,9 +858,10 @@ def orbElemsVsRadius(s,rBinEdges,average=False):
             else: #If there are no particles in the bin, set it as a negative number to mask out later
                 orbElems[:,i] = -1.0
         else: #Randomly select 1 particle in subsection for calculations
-            rMask = np.logical_and(gas['rxy'].in_units('au') > rBinEdges[i], gas['rxy'].in_units('au') < rBinEdges[i+1])
+            #rMask = np.logical_and(gas['rxy'].in_units('au') > rBinEdges[i], gas['rxy'].in_units('au') < rBinEdges[i+1])
+            rMask = np.logical_and(gas_rxy > rBinEdges[i], gas_rxy < rBinEdges[i+1])
             if i > 0:            
-                mass = M + np.sum(gas[gas['rxy'] < rBinEdges[i]]['mass'])
+                mass = M + np.sum(gas[gas_rxy < rBinEdges[i]]['mass'])
             else:
                 mass = M
             g = gas[rMask]            
@@ -894,7 +897,7 @@ def diskPrecession(s,radius):
         2 x len(rBinEdges)-1 array containing precession at each radial point in 1/s
     """
     #Compute relevant frequencies
-    alpha = SimArray(0.25,'au**2')
+    alpha = SimArray(0.0493,'au**2') # or is alpha 1/4 ...?
     r = SimArray(radius,'au')
     grav = SimArray(4.0*np.pi**2,'au**3 yr**-2 Msol**-1')
     mu = (s.stars[0]['mass'] * s.stars[1]['mass'])/np.sum(s.stars['mass'])
@@ -994,3 +997,38 @@ def forcedEccentricity(binary_sys,r):
     return (5./2.)*(1.0 - 2.0*mu)*binary_sys.e*binary_sys.a/r
     
 #end function
+
+def disk_scale_height(s, gamma = 1.0, mu = 2.3, bins=100):
+    """
+    Compute the disk scale height H = c_s/Omega.  Default is for an
+    isothermal EoS with ~solar metallicity gas.
+    
+    Parameters
+    ----------
+    s : pynbody snapshot
+    gamma : float 
+        adiabatic index from gas Equation of State
+    bins : int
+        number of radial bins to calculate over
+    
+    Returns
+    -------
+    H : array
+        array of scale heights H(r) [au]
+    """
+
+    # Instansiate profile object
+    pg = pynbody.analysis.profile.Profile(s.gas,nbins=bins,max='6 au')
+    cs = np.sqrt(gamma * AddBinary.kb * pg['temp'] / (mu*AddBinary.m_p))
+        
+    BIGG = AddBinary.G
+    m1 = s.stars[0]['mass'].in_units('g')
+    m2 = s.stars[1]['mass'].in_units('g')
+    radius = pg['rbins'].in_units('cm')
+
+    # Kepler orbital angular velocity
+    omega = SimArray(np.sqrt(BIGG*(m1+m2)/(radius**3)),'s**-1')
+    
+    return (cs/omega).in_units('au'), radius.in_units('au')
+
+# end function

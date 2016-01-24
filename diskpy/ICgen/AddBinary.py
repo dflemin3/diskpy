@@ -24,6 +24,8 @@ from diskpy.utils import strip_units
 Msol = 1.98855e33  # g/Solar mass
 BigG = 6.67259e-8  # in cgs
 G = SimArray(BigG,'cm**3 g**-1 s**-2')
+kb = SimArray(1.8064852e-16,'erg K**-1')
+m_p = SimArray(1.6726219e-24,'g')
 YEARSEC = 3.15569e7  # seconds per year
 DAYSEC = 86400  # seconds per day
 AUCM = 1.49597571e13  # cm/au
