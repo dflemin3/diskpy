@@ -8,6 +8,7 @@ Note on inputs: Most (if not all?) functions are designed to be used with SimArr
 # Imports
 import numpy as np
 import re
+import numba
 import AddBinary
 import pynbody
 from scipy import interpolate
@@ -1032,3 +1033,95 @@ def disk_scale_height(s, gamma = 1.0, mu = 2.3, bins=100):
     return (cs/omega).in_units('au'), radius.in_units('au')
 
 # end function
+
+def relative_velocity(s,r_num=75,w_num=75,r_min=0.5,r_max=3):
+    """
+    Compute the relative velocity of gas particles binned by physical
+    barycentric radius and polar azimuthal angle theta.  V_rel is computed
+    as the average relative velocity between gas particles within 3 smoothing
+    lengths of a given gas particle.
+    
+    Parameters
+    ----------
+    s : tipsy snapshot
+    r_num : number of radius bins
+    w_num : number of theta bins
+    r_min : min radius [AU]
+    r_max : max radius [AU]
+
+    Returns
+    -------
+    v_rel : numpy array
+        r_num - 1 x w_num - 1 array of float containing relative
+        velocities in code units
+    """
+    
+    # Intermediate functions
+    @numba.jit(nogil=True,nopython=True)
+    def dot(a,b):
+        return a[0]*b[0] + a[1]*b[1] + a[2]*b[2]
+        
+    @numba.jit(nogil=True,nopython=True)
+    def calc_vrel(pos,vel,eps):
+    
+        # No particles in that bin
+        N = len(vel)
+        if N == 0:
+            return 0.0
+        else:
+            tmp = 0.0
+            for k in range(0,N):
+                for l in range(0,N):
+                    if k != l:
+                        x_1 = pos[k]
+                        x_2 = pos[l]
+                        r = np.fabs(dot(x_1-x_2,x_1-x_2))
+                        
+                        if r < 9*eps: 
+                            v_1 = vel[k]
+                            v_2 = vel[l]
+                            tmp += np.sqrt(np.fabs(dot(v_1-v_2,v_1-v_2)))
+                        
+            return tmp/(2.0*N)
+            
+    # Core part of the function
+    
+    # Assemble a matrix to hold particle indices for 2D bins
+    # with rows = a given radius and cols = a given physical angle theta    
+    
+    # Compute gas theta    
+    gas_w = SimArray(np.arctan2(s.gas['y'],s.gas['x']),'1')
+
+    w_bins = np.linspace(0.,360.,w_num)
+    r_bins = np.linspace(r_min,r_max,r_num)
+    
+    # Make a matrix to hold bins
+    matrix = [[[] for x in range(len(w_bins))] for x in range(len(r_bins))]
+    
+    grxy = s.gas['rxy']
+    
+    # Do the actual binning
+    for i in range(0,r_num-1): # loop over rows
+        mask = ((grxy > r_bins[i]) & (grxy < r_bins[i+1]))
+        for j in range(0,w_num-1): # loop over cols
+            tmp = np.argwhere((gas_w > w_bins[j]) & (gas_w < w_bins[j+1]) & mask)
+            matrix[i][j].append(tmp)
+    
+    # Define return array
+    v_rel = np.zeros((r_num-1,w_num-1))
+    eps = np.mean(s.gas['eps'])
+
+    # Loop over bins, compute mean relative velocity in each bin
+    # If nothing is in said bin, it's 0
+    for i in range(0,r_num-1):
+        for j in range(0,w_num-1):
+            arr = (matrix[i][j][0]).flatten()
+            vel = np.asarray(s.gas[arr]['vel'])
+            pos = np.asarray(s.gas[arr]['pos'])
+            vr = calc_vrel(pos,vel,eps)
+            if vr != None:
+                v_rel[i,j] += vr
+            else:
+                v_rel[i,j] += 0.0
+                
+    return v_rel
