@@ -192,7 +192,7 @@ def computeCOM(stars,gas,cutoff=None,starFlag=True,gasFlag=True):
     com: SimArray
         Center of mass (in AU for each x,y,z component)
     """
-    com = pynbody.array.SimArray(np.zeros(3),'au')	
+    com = pynbody.array.SimArray(np.zeros(3),'au').reshape(1,3)
 
     assert starFlag == True or gasFlag == True, "At least one flag must be true."    
     
@@ -203,12 +203,13 @@ def computeCOM(stars,gas,cutoff=None,starFlag=True,gasFlag=True):
 	
     if starFlag: #Include stars
         #Ensure binary
-        assert len(stars) == 2
+        assert len(stars) <= 3 # 3 if simulation planetary migration
 	
         #Compute stellar mass, mass-weighted position
-        starMass = stars[0]['mass'] + stars[1]['mass']
-        starPos = stars[0]['pos'].in_units('au')*stars[0]['mass']
-        starPos += stars[1]['pos'].in_units('au')*stars[1]['mass']
+        starMass = np.sum(stars['mass']).in_units('Msol')
+        starPos = SimArray(np.zeros_like(com),'Msol au')
+        for i in range(0,len(stars)):
+            starPos += stars[i]['pos'].in_units('au')*stars[i]['mass'].in_units('Msol')
 	
         if gasFlag:
             #Compute, return total center of mass
@@ -253,7 +254,7 @@ def computeVelocityCOM(s,cutoff=None,starFlag=True,gasFlag=True):
     stars = s.stars
     gas = s.gas
     
-    com = pynbody.array.SimArray(np.zeros(3),'km s**-1')
+    com = pynbody.array.SimArray(np.zeros(3),'km s**-1').reshape(1,3)
     
     assert starFlag == True or gasFlag == True, "At least one flag must be true."    
     
@@ -264,12 +265,13 @@ def computeVelocityCOM(s,cutoff=None,starFlag=True,gasFlag=True):
 	
     if starFlag: #Include stars
         #Ensure binary
-        assert len(stars) == 2
+        assert len(stars) <= 3 # 3 if simulation planetary migration
 	
         #Compute stellar mass, mass-weighted position
-        starMass = stars[0]['mass'] + stars[1]['mass']
-        starPos = stars[0]['vel'].in_units('km s**-1')*stars[0]['mass']
-        starPos += stars[1]['vel'].in_units('km s**-1')*stars[1]['mass']
+        starMass = np.sum(stars['mass']).in_units('Msol')
+        starPos = SimArray(np.zeros_like(com),'Msol km s**-1')
+        for i in range(0,len(stars)):
+            starPos += stars[i]['vel'].in_units('km s**-1')*stars[i]['mass'].in_units('Msol') 
 	
         if gasFlag:
             #Compute, return total center of mass
@@ -348,6 +350,8 @@ def calcNetTorque(stars,gas):
     This function can be used to compute the net torque/mass due to any collection of gas (total disk, an annulus, etc) on 
     the stars.
 
+    Note: Only considers torque from gaseous disk!
+
     Parameters
     ----------
     stars, gas: pynbody-readable Tipsy snapshot arrays 
@@ -359,7 +363,7 @@ def calcNetTorque(stars,gas):
         Net torque/mass vector (3D) acting on binary system in cgs.
     """
     #Ensure system is binary
-    assert len(stars) == 2, "Only use for binary system."
+    assert len(stars) <= 3, "Only use for binary system. 3 for planetary migration systems"
 
     #Compute center of mass of entire binary-disk system
     com = computeCOM(stars,gas).in_units('cm')
@@ -397,21 +401,6 @@ def calcNetTorque(stars,gas):
 
     #Compute net force on stars due to gas (3 components)
     F2 = np.sum(F2,axis=0)    
-    
-    """
-    #Compute net force on the secondary star (index = 1) in cgs
-    grav = AddBinary.BigG*(stars[1]['mass']*gas['mass']/np.power(np.linalg.norm(stars[1]['pos']-gas['pos'],1),3))
-
-    #Scale that value by (x'-x) to make it a vector in cgs units
-    conv = (AddBinary.Msol*AddBinary.Msol)/(AddBinary.AUCM*AddBinary.AUCM)
-    F2 = -1*stars[1]['pos'] + gas['pos']
-    F2[:,0] *= (grav*conv)
-    F2[:,1] *= (grav*conv)
-    F2[:,2] *= (grav*conv)
-
-    #Compute net force
-    F2 = np.sum(F2,axis=0)
-    """
 
     #Compute the center of mass distances (au->cm)
     r1 = (stars[0]['pos'].in_units('cm') - com)#*AddBinary.AUCM
@@ -434,7 +423,9 @@ def torqueVsRadius(s,rBinEdges):
     that torque was calculated.  Note, I only care about the z component of the torque
     since this is a circumbinary disk system 
     Note: This function is best for returning proper disk radial bins.
-	
+    
+    Note: Only considers torque from gaseous disk!
+ 
     Parameters
     ----------
     s: pynbody snapshot of binary + CB disk
@@ -467,6 +458,8 @@ def calcDeDt(stars,tau):
     """
     Calculates the change in binary orbital eccentricity over time at each radial bin due to
     the torque/mass from the surrounding CB disk.
+    
+    # Note: only considers torque from gaseous disk!
 
     Parameters
     ----------
@@ -603,6 +596,8 @@ def calc_LB_resonance(s,m_min=1,m_max=3,l_min=1,l_max=3):
     """
     Computes the locations of various Lindblad Resonances in the disk as a 
     function of binary pattern speed.
+    
+    # Note: Only considers effects from gaseous disk!
     
      Parameters
      ----------
@@ -815,6 +810,8 @@ def orbElemsVsRadius(s,rBinEdges,average=True):
     Computes the orbital elements for disk particles about a binary system in given radial bins.
     Assumes center of mass has v ~ 0
 
+    # Note: In this scheme, gas particle orbit elements don't make sense when a planet is present.
+
     Parameters
     ----------
 
@@ -884,6 +881,8 @@ def diskPrecession(s,radius):
     Precssion frequency: Omega_p = Omega - Kappa
     Omega = sqrt((G*mu/r^3)*(1 + 3*alpha/r^2)) == orbital frequency
     
+    Note: This function does not make sense when a planet is present in the disk    
+    
     Parameters
     ----------
     
@@ -921,6 +920,8 @@ def diskAverage(s,r_out,bins=50,avgFlag=True):
     integral of 2*pisigma*x*r*dr / integral of 2*pi*sigma*r*dr.
     Sigma, e,a... calculated on the fly to ensure that they are all evaluated at
     the same location.
+    
+    Note: This function might not make sense when a planet is present in the disk.    
     
     Parameters
     ----------
@@ -1092,7 +1093,7 @@ def relative_velocity(s,r_num=75,w_num=75,r_min=0.5,r_max=3):
     # Compute gas theta    
     gas_w = SimArray(np.arctan2(s.gas['y'],s.gas['x']),'1')
 
-    w_bins = np.linspace(0.,360.,w_num)
+    w_bins = np.linspace(-np.pi,np.pi,w_num)
     r_bins = np.linspace(r_min,r_max,r_num)
     
     # Make a matrix to hold bins
