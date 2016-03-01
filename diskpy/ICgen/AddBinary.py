@@ -769,7 +769,8 @@ def calcEccentricAnomaly(x1, x2, v1, v2, m1, m2, flag=True):
 
     # Calc E
     nu = nu * (np.pi / 180.0)  # convert to radians for numpy functions
-    E = np.arccos((e + np.cos(nu)) / (1.0 + e * np.cos(nu)))
+    E = np.arctan2(np.sqrt(1.0-e*e)*np.sin(nu),e+np.cos(nu))
+    #E = np.arccos((e + np.cos(nu)) / (1.0 + e * np.cos(nu)))
 
     # Make sure this can handle single numbers or arrays
     if isinstance(E, np.float64):
@@ -850,7 +851,8 @@ def trueToMean(nu, e):
     """
     # Compute eccentric anomaly E
     nu = nu * (np.pi / 180.0)  # convert to radians for numpy functions
-    E = np.arccos((e + np.cos(nu)) / (1.0 + e * np.cos(nu)))
+    #E = np.arccos((e + np.cos(nu)) / (1.0 + e * np.cos(nu)))
+    E = np.arctan2(np.sqrt(1.0-e*e)*np.sin(nu),e+np.cos(nu))
 
     # Make sure this can handle single numbers or arrays
     if isinstance(E, np.float64):
