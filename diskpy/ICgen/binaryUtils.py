@@ -228,7 +228,7 @@ def computeCOM(stars,gas,cutoff=None,starFlag=True,gasFlag=True):
 #end function 
  
 
-def computeVelocityCOM(s,cutoff=None,starFlag=True,gasFlag=True):
+def computeVelocityCOM(stars,gas,cutoff=None,starFlag=True,gasFlag=True):
     """
     Given pynbody star and gas arrays, compute the center of mass velocity
     for the entire specified system.
@@ -251,8 +251,6 @@ def computeVelocityCOM(s,cutoff=None,starFlag=True,gasFlag=True):
     Note: a lot of "strip_units" commands included to prevent throwing weird value errors.  As long as all masses
     are in solar masses and positions in AU before this is run, you won't have any problems.	
     """
-    stars = s.stars
-    gas = s.gas
     
     com = pynbody.array.SimArray(np.zeros(3),'km s**-1').reshape(1,3)
     
@@ -833,12 +831,8 @@ def orbElemsVsRadius(s,rBinEdges,average=True):
     gas = s.gas
     gas_rxy = gas['rxy'].in_units('au')
     M = np.sum(stars['mass'])
-    zero = SimArray(np.zeros(3).reshape((1, 3)),'cm s**-1') 
     orbElems = np.zeros((6,len(rBinEdges)-1))    
     
-    #Gas orbiting about system center of mass
-    com = computeCOM(stars,gas)
-   
     #Loop over radial bins calculating orbital elements
     for i in range(0,len(rBinEdges)-1):
         if average: #Average over all gas particles in subsection
@@ -850,9 +844,13 @@ def orbElemsVsRadius(s,rBinEdges,average=True):
             else:
                 mass = M
             g = gas[rMask]
+            
+            #Gas orbiting about system center of mass interior to it
+            com = computeCOM(stars,g)
+            vcom = computeVelocityCOM(stars,g)
             N = len(g)
             if N > 0:
-                orbElems[:,i] = np.sum(AddBinary.calcOrbitalElements(g['pos'],com,g['vel'],zero,mass,g['mass']),axis=-1)/N
+                orbElems[:,i] = np.sum(AddBinary.calcOrbitalElements(g['pos'],com,g['vel'],vcom,mass,g['mass']),axis=-1)/N
             else: #If there are no particles in the bin, set it as a negative number to mask out later
                 orbElems[:,i] = -1.0
         else: #Randomly select 1 particle in subsection for calculations
@@ -862,10 +860,16 @@ def orbElemsVsRadius(s,rBinEdges,average=True):
                 mass = M + np.sum(gas[gas_rxy < rBinEdges[i]]['mass'])
             else:
                 mass = M
-            g = gas[rMask]            
+            g = gas[rMask]  
+            
+            #Gas orbiting about system center of mass interior to it
+            com = computeCOM(stars,g) 
+            vcom = computeVelocityCOM(stars,g)
+
+            
             index = np.random.randint(0,len(g))
             particle = g[index]
-            orbElems[:,i] = AddBinary.calcOrbitalElements(com,particle['pos'],zero,particle['vel'],mass,particle['mass'])
+            orbElems[:,i] = AddBinary.calcOrbitalElements(com,particle['pos'],vcom,particle['vel'],mass,particle['mass'])
             
     return orbElems
     
