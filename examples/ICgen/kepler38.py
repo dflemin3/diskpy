@@ -22,7 +22,7 @@ if __name__ == '__main__':
     m2 = IC.settings.physical.M - m1
     
     #Scale the mass of the disk to be some fraction of the star mass
-    IC.settings.snapshot.mScale = 0.05    
+    IC.settings.snapshot.mScale = 0.05   
 
     #Define whether the star is a single star or binary
     IC.settings.physical.starMode = 'binary'
@@ -49,7 +49,7 @@ if __name__ == '__main__':
     
     IC.settings.sigma.Rd = SimArray(2.0,'au') #Outer edge of powerlaw part of disk
     IC.settings.sigma.rmax = 2.0 #Set rmax 
-    IC.settings.sigma.rin = 1.0 #0.25 #Set inner disk radius as fraction of Rd
+    IC.settings.sigma.rin = 0.25 #Set inner disk radius as fraction of Rd
     IC.settings.cutlength = 0.01 #Set exp cutoff length scale as fraction of Rd
     IC.settings.pos_gen.method = 'random' #Instead of grid sampling, use random
     
@@ -59,7 +59,7 @@ if __name__ == '__main__':
     
     # Change the settings used for numerically calculating the gas density    
     # Set the number of gas particles
-    IC.settings.pos_gen.nParticles = 100000
+    IC.settings.pos_gen.nParticles = 50000
     
     # Set up the temperature profile to use.  Available kinds are 'powerlaw'
     # and 'MQWS'
