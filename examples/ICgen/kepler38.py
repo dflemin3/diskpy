@@ -22,7 +22,7 @@ if __name__ == '__main__':
     m2 = IC.settings.physical.M - m1
     
     #Scale the mass of the disk to be some fraction of the star mass
-    IC.settings.snapshot.mScale = 0.05   
+    IC.settings.snapshot.mScale = 0.0275 #0.05   
 
     #Define whether the star is a single star or binary
     IC.settings.physical.starMode = 'binary'
@@ -59,15 +59,15 @@ if __name__ == '__main__':
     
     # Change the settings used for numerically calculating the gas density    
     # Set the number of gas particles
-    IC.settings.pos_gen.nParticles = 50000
+    IC.settings.pos_gen.nParticles = 100000
     
     # Set up the temperature profile to use.  Available kinds are 'powerlaw'
     # and 'MQWS'
     # We'll use something of the form T = T0(r/r0)^Tpower
     IC.settings.physical.kind = 'powerlaw'
     IC.settings.physical.Tpower = -1  # exponent
-    IC.settings.physical.T0 = SimArray(750, 'K')  # temperature at r0
-    IC.settings.physical.Tmin = SimArray(150.0, 'K') # Minimum temperature
+    IC.settings.physical.T0 = SimArray(2500.0, 'K') #SimArray(750, 'K')  # temperature at r0
+    IC.settings.physical.Tmin = SimArray(500.0, 'K') #SimArray(150.0, 'K') # Minimum temperature
     IC.settings.physical.r0 = SimArray(1.0, 'au')
     
     # Lets have changa run on the local preset

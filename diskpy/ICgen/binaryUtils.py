@@ -836,7 +836,6 @@ def orbElemsVsRadius(s,rBinEdges,average=True):
     #Loop over radial bins calculating orbital elements
     for i in range(0,len(rBinEdges)-1):
         if average: #Average over all gas particles in subsection
-            #rMask = np.logical_and(gas['rxy'].in_units('au') > rBinEdges[i], gas['rxy'].in_units('au') < rBinEdges[i+1])
             rMask = np.logical_and(gas_rxy > rBinEdges[i], gas_rxy < rBinEdges[i+1])            
             if i > 0:
                 #Include mass of disk interior to given radius
@@ -845,16 +844,15 @@ def orbElemsVsRadius(s,rBinEdges,average=True):
                 mass = M
             g = gas[rMask]
             
-            #Gas orbiting about system center of mass interior to it
-            com = computeCOM(stars,g)
-            vcom = computeVelocityCOM(stars,g)
             N = len(g)
             if N > 0:
+                #Gas orbiting about system center of mass interior to it
+                com = computeCOM(stars,g)
+                vcom = computeVelocityCOM(stars,g)
                 orbElems[:,i] = np.sum(AddBinary.calcOrbitalElements(g['pos'],com,g['vel'],vcom,mass,g['mass']),axis=-1)/N
-            else: #If there are no particles in the bin, set it as a negative number to mask out later
-                orbElems[:,i] = -1.0
+            else: #If there are no particles in the bin, set it to 0
+                orbElems[:,i] = 0.0
         else: #Randomly select 1 particle in subsection for calculations
-            #rMask = np.logical_and(gas['rxy'].in_units('au') > rBinEdges[i], gas['rxy'].in_units('au') < rBinEdges[i+1])
             rMask = np.logical_and(gas_rxy > rBinEdges[i], gas_rxy < rBinEdges[i+1])
             if i > 0:            
                 mass = M + np.sum(gas[gas_rxy < rBinEdges[i]]['mass'])
